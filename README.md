@@ -58,16 +58,18 @@ Every explanation, every quiz, every session earns XP. Every belt promotion is a
 
 ```bash
 # In Claude Code:
-/plugin marketplace add dojocodinglabs/code-sensei
-/plugin install code-sensei
+/plugin marketplace add DojoCodingLabs/code-sensei
+/plugin install code-sensei@code-sensei
 ```
 
-That's it. Restart Claude Code and start building. CodeSensei is ready.
+That's it. Start building — CodeSensei activates automatically.
+
+> **Requires:** [Claude Code](https://code.claude.com) with plugin support. Hook scripts use `jq` for profile tracking — install with `brew install jq` (macOS) or `apt install jq` (Linux).
 
 ### Local Development
 
 ```bash
-git clone https://github.com/dojocodinglabs/code-sensei.git
+git clone https://github.com/DojoCodingLabs/code-sensei.git
 cd code-sensei
 
 # In Claude Code:
@@ -95,7 +97,7 @@ cd code-sensei
 
 1. **You vibecode normally** — prompt Claude to build whatever you want
 2. **Hooks track what happens** — file changes, commands run, technologies used
-3. **You ask when curious** — `/explain`, `/quiz`, `/why` whenever you want to learn
+3. **You ask when curious** — `/code-sensei:explain`, `/code-sensei:quiz`, `/code-sensei:why` whenever you want to learn
 4. **CodeSensei adapts** — explanations match your belt level and background
 5. **You level up** — XP accumulates, belts are earned, skills unlock
 6. **Progress persists** — your profile lives at `~/.code-sensei/` and works across all projects
@@ -128,6 +130,32 @@ Set your field with `/code-sensei:level background marketing` and CodeSensei spe
 - ❌ No personal data, no code content, no telemetry, no external calls
 
 Everything stays on your machine in `~/.code-sensei/`.
+
+---
+
+## 🔧 What's Included
+
+```
+code-sensei/
+├── .claude-plugin/
+│   ├── plugin.json          # Plugin metadata
+│   └── marketplace.json     # Marketplace catalog
+├── commands/                 # 7 slash commands
+│   ├── explain.md            #   /code-sensei:explain
+│   ├── quiz.md               #   /code-sensei:quiz
+│   ├── why.md                #   /code-sensei:why
+│   ├── progress.md           #   /code-sensei:progress
+│   ├── recap.md              #   /code-sensei:recap
+│   ├── level.md              #   /code-sensei:level
+│   └── belt.md               #   /code-sensei:belt
+├── agents/
+│   └── sensei.md             # AI mentor subagent (Haiku)
+├── skills/                   # 10 auto-invoked teaching modules
+├── hooks/
+│   └── hooks.json            # Session & code change tracking
+├── scripts/                  # Hook scripts (bash + jq)
+└── data/                     # Concept tree & quiz bank
+```
 
 ---
 

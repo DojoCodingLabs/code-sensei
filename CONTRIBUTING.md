@@ -40,7 +40,7 @@ Priority languages: Spanish (es), Portuguese (pt), French (fr), Japanese (ja), K
 
 ### Setup
 ```bash
-git clone https://github.com/dojocodinglabs/code-sensei.git
+git clone https://github.com/DojoCodingLabs/code-sensei.git
 cd code-sensei
 ```
 
