@@ -1,0 +1,32 @@
+{
+  "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
+  "name": "code-sensei",
+  "version": "1.0.0",
+  "description": "Learn to code while you vibecode. Free, open-source AI mentor by Dojo Coding — contextual explanations, quizzes, and belt progression built into every Claude Code session.",
+  "owner": {
+    "name": "Dojo Coding",
+    "email": "team@dojocoding.io"
+  },
+  "plugins": [
+    {
+      "name": "code-sensei",
+      "description": "AI coding mentor that teaches programming while you vibecode. Contextual explanations, micro-quizzes, and a martial arts belt progression system — from White Belt to Black Belt. Adapts to your skill level and professional background.",
+      "version": "1.0.0",
+      "author": {
+        "name": "Dojo Coding",
+        "email": "team@dojocoding.io"
+      },
+      "source": "./",
+      "homepage": "https://dojocoding.io/code-sensei",
+      "category": "education",
+      "keywords": [
+        "learning",
+        "education",
+        "vibecoding",
+        "beginner",
+        "tutorial",
+        "gamification"
+      ]
+    }
+  ]
+}
