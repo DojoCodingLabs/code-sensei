@@ -69,9 +69,60 @@ if command -v jq &> /dev/null; then
   # Sanitize command for JSON (remove quotes and special chars)
   SAFE_CMD=$(echo "$COMMAND" | head -c 80 | tr '"' "'" | tr '\\' '/')
 
+  # Check if this is a test runner command — skip error detection for those
+  IS_TEST_RUNNER="false"
+  case "$COMMAND" in
+    jest\ *|"jest"|\
+    pytest\ *|"pytest"|\
+    vitest\ *|"vitest"|\
+    bats\ *|"bats"|\
+    mocha\ *|"mocha"|\
+    "npm test"*|"npm run test"*|\
+    "yarn test"*|"yarn run test"*|\
+    "npx jest"*|"npx vitest"*)
+      IS_TEST_RUNNER="true"
+      ;;
+  esac
+
+  # Detect error patterns in command output (only for non-test-runner commands)
+  ERROR_CONCEPT=""
+  if [ "$IS_TEST_RUNNER" = "false" ]; then
+    TOOL_RESPONSE=$(echo "$INPUT" | jq -r '.tool_response // ""' 2>/dev/null || echo "")
+    STDOUT=$(echo "$INPUT" | jq -r '.tool_response.stdout // ""' 2>/dev/null || echo "")
+    STDERR=$(echo "$INPUT" | jq -r '.tool_response.stderr // ""' 2>/dev/null || echo "")
+    OUTPUT="${STDOUT}${STDERR}${TOOL_RESPONSE}"
+
+    case "$OUTPUT" in
+      *"Traceback (most recent call last):"*)
+        ERROR_CONCEPT="error-reading"
+        ;;
+      *"TypeError"*|*"ReferenceError"*|*"SyntaxError"*)
+        ERROR_CONCEPT="common-errors"
+        ;;
+      *"Error:"*|*"ERROR:"*|*"error:"*)
+        ERROR_CONCEPT="error-reading"
+        ;;
+      *"ENOENT"*|*"EACCES"*|*"EPERM"*)
+        ERROR_CONCEPT="error-reading"
+        ;;
+      *"command not found"*)
+        ERROR_CONCEPT="error-reading"
+        ;;
+      *"ModuleNotFoundError"*|*"ImportError"*)
+        ERROR_CONCEPT="error-reading"
+        ;;
+      *"fatal:"*)
+        ERROR_CONCEPT="error-reading"
+        ;;
+    esac
+  fi
+
   if [ "$IS_FIRST_EVER" = "true" ] && [ -n "$CONCEPT" ]; then
     # First-time encounter: micro-lesson about the concept
     CONTEXT="🥋 CodeSensei micro-lesson trigger: The user just encountered '$CONCEPT' for the FIRST TIME (command: $SAFE_CMD). Their belt level is '$BELT'. Provide a brief 2-sentence explanation of what $CONCEPT means and why it matters. Adapt language to their belt level. Keep it concise and non-intrusive."
+  elif [ -n "$ERROR_CONCEPT" ]; then
+    # Error detected in command output: teach debugging
+    CONTEXT="🥋 CodeSensei inline insight: An error appeared in the command output ($SAFE_CMD). The user's belt level is '$BELT'. This is a great moment to teach '$ERROR_CONCEPT' — briefly explain how to read and interpret this type of error in 1-2 sentences, adapted to their belt level. Keep it supportive and practical."
   elif [ -n "$CONCEPT" ]; then
     # Already-seen concept: brief inline insight about this specific command
     CONTEXT="🥋 CodeSensei inline insight: Claude just ran a '$CONCEPT' command ($SAFE_CMD). The user's belt level is '$BELT'. Provide a brief 1-sentence explanation of what this command does, adapted to their belt level. Keep it natural and non-intrusive."
