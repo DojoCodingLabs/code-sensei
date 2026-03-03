@@ -84,6 +84,13 @@
         "correct": 1,
         "explanation": "useState creates LOCAL memory for that specific component. When the state changes, React automatically re-draws that component with the new data. It's not permanent (refreshing the page resets it) and it's not global (other components can't see it directly).",
         "hint": "Think of it as the component's personal notebook — only it can read and write to it."
+      },
+      {
+        "belt": "orange",
+        "format": "free_response",
+        "question": "In your own words, why does React use components instead of putting everything in one big file?",
+        "expected_understanding": "Components are reusable building blocks. They make code organized, maintainable, and reusable. Each component handles one piece of the UI.",
+        "hint": "Think about LEGO blocks vs. carving a statue from one piece of stone."
       }
     ],
     "routes": [
@@ -146,7 +153,7 @@
         "hint": "Think about entering a secure building: first they check your identity, then they check your access level."
       }
     ],
-    "javascript": [
+    "js-basics": [
       {
         "belt": "yellow",
         "question": "Why does Claude add `console.log()` statements when debugging?",
@@ -161,15 +168,6 @@
         "question": "In your own words, what is the difference between `let` and `const` in JavaScript, and when would you use each one?",
         "expected_understanding": "let is for values that change, const is for values that stay the same. Use const by default, let when you know the value will need to change.",
         "hint": "Think about what 'constant' means in everyday language."
-      }
-    ],
-    "react": [
-      {
-        "belt": "orange",
-        "format": "free_response",
-        "question": "In your own words, why does React use components instead of putting everything in one big file?",
-        "expected_understanding": "Components are reusable building blocks. They make code organized, maintainable, and reusable. Each component handles one piece of the UI.",
-        "hint": "Think about LEGO blocks vs. carving a statue from one piece of stone."
       }
     ],
     "typescript": [
