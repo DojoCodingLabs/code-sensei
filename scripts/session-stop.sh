@@ -5,6 +5,7 @@
 PROFILE_DIR="$HOME/.code-sensei"
 PROFILE_FILE="$PROFILE_DIR/profile.json"
 SESSION_LOG="$PROFILE_DIR/sessions.log"
+SESSION_STATE="$PROFILE_DIR/session-state.json"
 TODAY=$(date -u +%Y-%m-%d)
 
 if [ ! -f "$PROFILE_FILE" ]; then
@@ -27,8 +28,12 @@ if command -v jq &> /dev/null; then
 
   # Show gentle reminder if they learned things but didn't recap
   if [ "$SESSION_CONCEPTS" -gt 0 ]; then
-    echo "🥋 You encountered $SESSION_CONCEPTS new concepts this session! Use /code-sensei:recap next time for a full summary."
+    echo "You encountered $SESSION_CONCEPTS new concepts this session! Use /code-sensei:recap next time for a full summary."
   fi
 fi
+
+# Clean up session state files
+rm -f "$SESSION_STATE"
+rm -f "$PROFILE_DIR/.jq-warned"
 
 exit 0

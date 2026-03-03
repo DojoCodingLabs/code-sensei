@@ -6,6 +6,14 @@
 PROFILE_DIR="$HOME/.code-sensei"
 PROFILE_FILE="$PROFILE_DIR/profile.json"
 COMMANDS_LOG="$PROFILE_DIR/session-commands.jsonl"
+SESSION_STATE="$PROFILE_DIR/session-state.json"
+
+# Rate limiting constants
+RATE_LIMIT_INTERVAL=30   # minimum seconds between teaching triggers
+SESSION_CAP=12           # maximum teaching triggers per session
+
+# Trivial commands that should never generate teaching triggers
+TRIVIAL_COMMANDS="cd ls pwd clear echo cat which man help exit history alias type file wc whoami hostname uname true false"
 
 # Read hook input from stdin
 INPUT=$(cat)
@@ -17,6 +25,25 @@ fi
 if command -v jq &> /dev/null; then
   COMMAND=$(echo "$INPUT" | jq -r '.tool_input.command // "unknown"')
   TIMESTAMP=$(date -u +%Y-%m-%dT%H:%M:%SZ)
+
+  # Extract the base command (first word, ignoring leading whitespace)
+  BASE_CMD=$(echo "$COMMAND" | sed 's/^[[:space:]]*//' | awk '{print $1}' | sed 's|.*/||')
+
+  # Check if the command is trivial — skip teaching triggers entirely
+  IS_TRIVIAL="false"
+  for trivial in $TRIVIAL_COMMANDS; do
+    if [ "$BASE_CMD" = "$trivial" ]; then
+      IS_TRIVIAL="true"
+      break
+    fi
+  done
+
+  if [ "$IS_TRIVIAL" = "true" ]; then
+    # Log it but emit no teaching context
+    echo "{\"timestamp\":\"$TIMESTAMP\",\"command\":\"$(echo "$COMMAND" | head -c 200)\",\"concept\":\"\",\"skipped\":\"trivial\"}" >> "$COMMANDS_LOG"
+    echo "{}"
+    exit 0
+  fi
 
   # Detect what kind of command this is for concept tracking
   CONCEPT=""
@@ -64,20 +91,62 @@ if command -v jq &> /dev/null; then
     fi
   fi
 
-  # Always inject teaching context after commands
+  # --- Rate limiting ---
+  NOW=$(date +%s)
+
+  # Read current session state (graceful default if missing)
+  if [ -f "$SESSION_STATE" ]; then
+    LAST_TRIGGER=$(jq -r '.last_trigger_time // 0' "$SESSION_STATE" 2>/dev/null || echo "0")
+    TRIGGER_COUNT=$(jq -r '.trigger_count // 0' "$SESSION_STATE" 2>/dev/null || echo "0")
+  else
+    LAST_TRIGGER=0
+    TRIGGER_COUNT=0
+  fi
+
+  # Enforce session cap (applies to everyone, including first-ever concepts)
+  if [ "$TRIGGER_COUNT" -ge "$SESSION_CAP" ]; then
+    echo "{}"
+    exit 0
+  fi
+
+  # Enforce minimum interval — first-ever concepts bypass this check only
+  ELAPSED=$(( NOW - LAST_TRIGGER ))
+  if [ "$ELAPSED" -lt "$RATE_LIMIT_INTERVAL" ] && [ "$IS_FIRST_EVER" != "true" ]; then
+    echo "{}"
+    exit 0
+  fi
+
+  # Update session state
+  NEW_COUNT=$(( TRIGGER_COUNT + 1 ))
+  SESSION_START_VAL=""
+  if [ -f "$SESSION_STATE" ]; then
+    SESSION_START_VAL=$(jq -r '.session_start // ""' "$SESSION_STATE" 2>/dev/null || echo "")
+  fi
+  if [ -z "$SESSION_START_VAL" ]; then
+    SESSION_START_VAL="$TIMESTAMP"
+  fi
+
+  jq -n \
+    --argjson last "$NOW" \
+    --argjson count "$NEW_COUNT" \
+    --arg start "$SESSION_START_VAL" \
+    '{"last_trigger_time": $last, "trigger_count": $count, "session_start": $start}' \
+    > "$SESSION_STATE"
+
+  # Build teaching context
   BELT=$(jq -r '.belt // "white"' "$PROFILE_FILE" 2>/dev/null || echo "white")
   # Sanitize command for JSON (remove quotes and special chars)
   SAFE_CMD=$(echo "$COMMAND" | head -c 80 | tr '"' "'" | tr '\\' '/')
 
   if [ "$IS_FIRST_EVER" = "true" ] && [ -n "$CONCEPT" ]; then
     # First-time encounter: micro-lesson about the concept
-    CONTEXT="🥋 CodeSensei micro-lesson trigger: The user just encountered '$CONCEPT' for the FIRST TIME (command: $SAFE_CMD). Their belt level is '$BELT'. Provide a brief 2-sentence explanation of what $CONCEPT means and why it matters. Adapt language to their belt level. Keep it concise and non-intrusive."
+    CONTEXT="CodeSensei micro-lesson trigger: The user just encountered '$CONCEPT' for the FIRST TIME (command: $SAFE_CMD). Their belt level is '$BELT'. Provide a brief 2-sentence explanation of what $CONCEPT means and why it matters. Adapt language to their belt level. Keep it concise and non-intrusive."
   elif [ -n "$CONCEPT" ]; then
     # Already-seen concept: brief inline insight about this specific command
-    CONTEXT="🥋 CodeSensei inline insight: Claude just ran a '$CONCEPT' command ($SAFE_CMD). The user's belt level is '$BELT'. Provide a brief 1-sentence explanation of what this command does, adapted to their belt level. Keep it natural and non-intrusive."
+    CONTEXT="CodeSensei inline insight: Claude just ran a '$CONCEPT' command ($SAFE_CMD). The user's belt level is '$BELT'. Provide a brief 1-sentence explanation of what this command does, adapted to their belt level. Keep it natural and non-intrusive."
   else
     # Unknown command type: still provide a brief hint
-    CONTEXT="🥋 CodeSensei inline insight: Claude just ran a shell command ($SAFE_CMD). The user's belt level is '$BELT'. If this command is educational, briefly explain what it does in 1 sentence. If trivial, skip the explanation."
+    CONTEXT="CodeSensei inline insight: Claude just ran a shell command ($SAFE_CMD). The user's belt level is '$BELT'. If this command is educational, briefly explain what it does in 1 sentence. If trivial, skip the explanation."
   fi
 
   echo "{\"hookSpecificOutput\":{\"hookEventName\":\"PostToolUse\",\"additionalContext\":\"$CONTEXT\"}}"
