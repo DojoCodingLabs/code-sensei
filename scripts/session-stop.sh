@@ -2,9 +2,12 @@
 # CodeSensei — Session Stop Hook
 # Saves session data and shows a mini-recap prompt
 
-PROFILE_DIR="$HOME/.code-sensei"
-PROFILE_FILE="$PROFILE_DIR/profile.json"
-SESSION_LOG="$PROFILE_DIR/sessions.log"
+# Resolve lib path relative to this script's location
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+# shellcheck source=lib/profile-io.sh
+source "${SCRIPT_DIR}/lib/profile-io.sh"
+
+SESSION_LOG="${PROFILE_DIR}/sessions.log"
 TODAY=$(date -u +%Y-%m-%d)
 
 if [ ! -f "$PROFILE_FILE" ]; then
@@ -21,13 +24,12 @@ if command -v jq &> /dev/null; then
   # Log session end
   echo "$TODAY $(date -u +%H:%M:%S) session_stop concepts=$SESSION_CONCEPTS xp=$XP belt=$BELT" >> "$SESSION_LOG"
 
-  # Clear session-specific data
-  UPDATED=$(jq '.session_concepts = []' "$PROFILE_FILE")
-  echo "$UPDATED" > "$PROFILE_FILE"
+  # Clear session-specific data atomically
+  update_profile '.session_concepts = []'
 
   # Show gentle reminder if they learned things but didn't recap
   if [ "$SESSION_CONCEPTS" -gt 0 ]; then
-    echo "🥋 You encountered $SESSION_CONCEPTS new concepts this session! Use /code-sensei:recap next time for a full summary."
+    echo "You encountered $SESSION_CONCEPTS new concepts this session! Use /code-sensei:recap next time for a full summary."
   fi
 fi
 

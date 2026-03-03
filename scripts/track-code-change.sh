@@ -3,16 +3,17 @@
 # Records what files Claude creates or modifies for contextual teaching
 # This data is used by /explain and /recap to know what happened
 
-PROFILE_DIR="$HOME/.code-sensei"
-PROFILE_FILE="$PROFILE_DIR/profile.json"
-CHANGES_LOG="$PROFILE_DIR/session-changes.jsonl"
+# Resolve lib path relative to this script's location
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+# shellcheck source=lib/profile-io.sh
+source "${SCRIPT_DIR}/lib/profile-io.sh"
+
+CHANGES_LOG="${PROFILE_DIR}/session-changes.jsonl"
 
 # Read hook input from stdin
 INPUT=$(cat)
 
-if [ ! -d "$PROFILE_DIR" ]; then
-  mkdir -p "$PROFILE_DIR"
-fi
+ensure_profile_dir
 
 if command -v jq &> /dev/null; then
   # Extract file path and tool info from hook input
@@ -44,21 +45,25 @@ if command -v jq &> /dev/null; then
   # Log the change
   echo "{\"timestamp\":\"$TIMESTAMP\",\"tool\":\"$TOOL_NAME\",\"file\":\"$FILE_PATH\",\"extension\":\"$EXTENSION\",\"tech\":\"$TECH\"}" >> "$CHANGES_LOG"
 
-  # Track technology in session concepts if it's new
+  # Track technology in session and lifetime concepts — single atomic jq pass
   IS_FIRST_EVER="false"
   if [ -f "$PROFILE_FILE" ] && [ "$TECH" != "other" ]; then
-    ALREADY_SEEN=$(jq --arg tech "$TECH" '.session_concepts | index($tech)' "$PROFILE_FILE")
-    if [ "$ALREADY_SEEN" = "null" ]; then
-      UPDATED=$(jq --arg tech "$TECH" '.session_concepts += [$tech]' "$PROFILE_FILE")
-      echo "$UPDATED" > "$PROFILE_FILE"
-    fi
+    # Read current state once to determine what flags to set
+    ALREADY_IN_SESSION=$(jq --arg tech "$TECH" '.session_concepts | index($tech)' "$PROFILE_FILE")
+    ALREADY_IN_LIFETIME=$(jq --arg tech "$TECH" '.concepts_seen | index($tech)' "$PROFILE_FILE")
 
-    # Also add to lifetime concepts_seen if new — and flag for micro-lesson
-    LIFETIME_SEEN=$(jq --arg tech "$TECH" '.concepts_seen | index($tech)' "$PROFILE_FILE")
-    if [ "$LIFETIME_SEEN" = "null" ]; then
-      UPDATED=$(jq --arg tech "$TECH" '.concepts_seen += [$tech]' "$PROFILE_FILE")
-      echo "$UPDATED" > "$PROFILE_FILE"
+    if [ "$ALREADY_IN_LIFETIME" = "null" ]; then
       IS_FIRST_EVER="true"
+      # Add to both session_concepts and concepts_seen in one pass
+      update_profile --arg tech "$TECH" '
+        .session_concepts += (if (.session_concepts | index($tech)) == null then [$tech] else [] end) |
+        .concepts_seen   += (if (.concepts_seen   | index($tech)) == null then [$tech] else [] end)
+      '
+    elif [ "$ALREADY_IN_SESSION" = "null" ]; then
+      # New to session only — single pass
+      update_profile --arg tech "$TECH" '
+        .session_concepts += [$tech]
+      '
     fi
   fi
 
@@ -67,10 +72,10 @@ if command -v jq &> /dev/null; then
 
   if [ "$IS_FIRST_EVER" = "true" ]; then
     # First-time encounter: micro-lesson about the technology
-    CONTEXT="🥋 CodeSensei micro-lesson trigger: The user just encountered '$TECH' for the FIRST TIME (file: $FILE_PATH). Their belt level is '$BELT'. Provide a brief 2-sentence explanation of what $TECH is and why it matters for their project. Adapt language to their belt level. Keep it concise and non-intrusive — weave it naturally into your response, don't stop everything for a lecture."
+    CONTEXT="CodeSensei micro-lesson trigger: The user just encountered '$TECH' for the FIRST TIME (file: $FILE_PATH). Their belt level is '$BELT'. Provide a brief 2-sentence explanation of what $TECH is and why it matters for their project. Adapt language to their belt level. Keep it concise and non-intrusive — weave it naturally into your response, don't stop everything for a lecture."
   else
     # Already-seen technology: inline insight about the specific change
-    CONTEXT="🥋 CodeSensei inline insight: Claude just used '$TOOL_NAME' on '$FILE_PATH' ($TECH). The user's belt level is '$BELT'. Provide a brief 1-2 sentence explanation of what this change does and why, adapted to their belt level. Keep it natural and non-intrusive — weave it into your response as a quick teaching moment."
+    CONTEXT="CodeSensei inline insight: Claude just used '$TOOL_NAME' on '$FILE_PATH' ($TECH). The user's belt level is '$BELT'. Provide a brief 1-2 sentence explanation of what this change does and why, adapted to their belt level. Keep it natural and non-intrusive — weave it into your response as a quick teaching moment."
   fi
 
   echo "{\"hookSpecificOutput\":{\"hookEventName\":\"PostToolUse\",\"additionalContext\":\"$CONTEXT\"}}"
