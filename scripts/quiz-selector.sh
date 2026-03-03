@@ -19,6 +19,10 @@ PROFILE_FILE="$PROFILE_DIR/profile.json"
 PLUGIN_ROOT="${CLAUDE_PLUGIN_ROOT:-$(dirname "$(dirname "$0")")}"
 QUIZ_BANK="$PLUGIN_ROOT/data/quiz-bank.json"
 
+# Source cross-platform date helpers
+# shellcheck source=scripts/lib/date-compat.sh
+source "$PLUGIN_ROOT/scripts/lib/date-compat.sh"
+
 # Default output if we can't determine anything
 DEFAULT_OUTPUT='{"mode":"dynamic","concept":null,"reason":"No profile data available","static_question":null,"belt":"white","quiz_format":"multiple_choice"}'
 
@@ -40,8 +44,8 @@ SESSION_CONCEPTS=$(jq -c '.session_concepts // []' "$PROFILE_FILE")
 TOTAL_QUIZZES=$(jq -r '.quizzes.total // 0' "$PROFILE_FILE")
 CORRECT_QUIZZES=$(jq -r '.quizzes.correct // 0' "$PROFILE_FILE")
 
-TODAY=$(date -u +%Y-%m-%d)
-NOW_EPOCH=$(date +%s)
+TODAY=$(date_today)
+NOW_EPOCH=$(date_to_epoch "$TODAY")
 
 # Determine quiz format based on belt level
 # Orange Belt+ gets a mix of formats; lower belts get multiple choice
@@ -84,8 +88,8 @@ if [ "$QUIZ_HISTORY" != "[]" ]; then
 
     # Calculate days since last wrong answer
     LAST_WRONG_DATE=$(echo "$LAST_WRONG" | cut -d'T' -f1)
-    LAST_EPOCH=$(date -j -f "%Y-%m-%d" "$LAST_WRONG_DATE" +%s 2>/dev/null || date -d "$LAST_WRONG_DATE" +%s 2>/dev/null)
-    if [ -n "$LAST_EPOCH" ]; then
+    LAST_EPOCH=$(date_to_epoch "$LAST_WRONG_DATE")
+    if [ -n "$LAST_EPOCH" ] && [ "$LAST_EPOCH" != "0" ]; then
       DAYS_SINCE=$(( (NOW_EPOCH - LAST_EPOCH) / 86400 ))
     else
       DAYS_SINCE=999

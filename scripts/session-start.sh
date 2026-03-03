@@ -5,7 +5,13 @@
 PROFILE_DIR="$HOME/.code-sensei"
 PROFILE_FILE="$PROFILE_DIR/profile.json"
 SESSION_LOG="$PROFILE_DIR/sessions.log"
-TODAY=$(date -u +%Y-%m-%d)
+PLUGIN_ROOT="${CLAUDE_PLUGIN_ROOT:-$(dirname "$(dirname "$0")")}"
+
+# Source cross-platform date helpers
+# shellcheck source=scripts/lib/date-compat.sh
+source "$PLUGIN_ROOT/scripts/lib/date-compat.sh"
+
+TODAY=$(date_today)
 
 # Create profile directory if it doesn't exist
 mkdir -p "$PROFILE_DIR"
@@ -17,7 +23,7 @@ if [ ! -f "$PROFILE_FILE" ]; then
   "version": "1.0.0",
   "plugin": "code-sensei",
   "brand": "Dojo Coding",
-  "created_at": "$(date -u +%Y-%m-%dT%H:%M:%SZ)",
+  "created_at": "$(date_now_iso)",
   "belt": "white",
   "xp": 0,
   "streak": {
@@ -45,7 +51,7 @@ if [ ! -f "$PROFILE_FILE" ]; then
       "id": "first-session",
       "name": "First Steps",
       "description": "Started your first CodeSensei session",
-      "earned_at": "$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+      "earned_at": "$(date_now_iso)"
     }
   ],
   "preferences": {
@@ -73,7 +79,7 @@ if command -v jq &> /dev/null; then
     NEW_STREAK=$CURRENT_STREAK
   elif [ -n "$LAST_SESSION" ]; then
     # Check if last session was yesterday
-    YESTERDAY=$(date -u -d "yesterday" +%Y-%m-%d 2>/dev/null || date -u -v-1d +%Y-%m-%d 2>/dev/null)
+    YESTERDAY=$(date_yesterday)
     if [ "$LAST_SESSION" = "$YESTERDAY" ]; then
       NEW_STREAK=$((CURRENT_STREAK + 1))
     else
@@ -107,7 +113,7 @@ if command -v jq &> /dev/null; then
   echo "$UPDATED" > "$PROFILE_FILE"
 
   # Log session
-  echo "$TODAY $(date -u +%H:%M:%S) session_start" >> "$SESSION_LOG"
+  echo "$(date_now_iso) session_start" >> "$SESSION_LOG"
 
   # Show streak info if notable
   BELT=$(jq -r '.belt // "white"' "$PROFILE_FILE")
