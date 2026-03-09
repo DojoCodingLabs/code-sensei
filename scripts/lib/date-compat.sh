@@ -25,9 +25,9 @@ date_to_epoch() {
   # Try GNU date
   date -u -d "$date_str" '+%s' 2>/dev/null && return
   # Try BSD date (macOS)
-  date -u -j -f '%Y-%m-%d' "$date_str" '+%s' 2>/dev/null && return
+  date -u -j -f '%Y-%m-%d %H:%M:%S' "${date_str} 00:00:00" '+%s' 2>/dev/null && return
   # Python fallback
-  python3 -c "from datetime import datetime; print(int(datetime.strptime('$date_str', '%Y-%m-%d').timestamp()))" 2>/dev/null && return
+  python3 -c "from datetime import datetime, timezone; print(int(datetime.strptime('$date_str', '%Y-%m-%d').replace(tzinfo=timezone.utc).timestamp()))" 2>/dev/null && return
   echo "0"
 }
 
