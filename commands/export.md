@@ -58,9 +58,9 @@ Start a session to create your profile, then export it.
 → Use /code-sensei:progress to initialize your profile
 ```
 
-6. If the script reports that jq is missing and a raw copy was made, add a warning:
+6. If the script reports that jq is missing, add a warning:
 
 ```
-⚠️  jq not found — raw profile copied without metadata wrapper.
-    Install jq for full export functionality: brew install jq
+⚠️  jq not found — export created without jq validation/pretty formatting.
+    The file is still importable. Install jq for full export functionality: brew install jq
 ```

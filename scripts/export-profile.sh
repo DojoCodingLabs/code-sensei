@@ -4,9 +4,9 @@
 
 PROFILE_DIR="$HOME/.code-sensei"
 PROFILE_FILE="$PROFILE_DIR/profile.json"
-EXPORT_DATE=$(date -u +%Y-%m-%d)
+EXPORT_STAMP=$(date -u +%Y-%m-%dT%H-%M-%SZ)
 EXPORT_TIMESTAMP=$(date -u +%Y-%m-%dT%H:%M:%SZ)
-EXPORT_FILE="$HOME/code-sensei-export-${EXPORT_DATE}.json"
+EXPORT_FILE="$HOME/code-sensei-export-${EXPORT_STAMP}-$$.json"
 
 # Resolve plugin version from plugin.json if CLAUDE_PLUGIN_ROOT is set
 PLUGIN_VERSION="unknown"
@@ -44,11 +44,19 @@ if command -v jq &> /dev/null; then
 
   echo "$EXPORT_FILE"
 else
-  # jq not available — raw copy with a warning to stderr
-  echo "WARNING: jq not found. Copying raw profile without metadata wrapper." >&2
+  # jq not available — still create an importable wrapper without validation/pretty-printing
+  echo "WARNING: jq not found. Creating export without jq validation/pretty formatting." >&2
   echo "Install jq for full export functionality: brew install jq" >&2
 
-  cp "$PROFILE_FILE" "$EXPORT_FILE"
+  {
+    printf '{\n'
+    printf '  "schema_version": "1.0",\n'
+    printf '  "exported_at": "%s",\n' "$EXPORT_TIMESTAMP"
+    printf '  "plugin_version": "%s",\n' "$PLUGIN_VERSION"
+    printf '  "profile": '
+    cat "$PROFILE_FILE"
+    printf '\n}\n'
+  } > "$EXPORT_FILE"
 
   if [ $? -ne 0 ]; then
     echo "ERROR: Failed to copy profile to $EXPORT_FILE" >&2
