@@ -74,6 +74,12 @@ if command -v jq &> /dev/null; then
   # Log the command
   echo "{\"timestamp\":\"$TIMESTAMP\",\"command\":\"$(echo "$COMMAND" | head -c 200)\",\"concept\":\"$CONCEPT\"}" >> "$COMMANDS_LOG"
 
+  # Skip non-educational commands without consuming the session budget
+  if [ -z "$CONCEPT" ]; then
+    echo "{}"
+    exit 0
+  fi
+
   # Track concept in session and lifetime if new and meaningful
   IS_FIRST_EVER="false"
   if [ -n "$CONCEPT" ] && [ -f "$PROFILE_FILE" ]; then
@@ -140,13 +146,10 @@ if command -v jq &> /dev/null; then
 
   if [ "$IS_FIRST_EVER" = "true" ] && [ -n "$CONCEPT" ]; then
     # First-time encounter: micro-lesson about the concept
-    CONTEXT="CodeSensei micro-lesson trigger: The user just encountered '$CONCEPT' for the FIRST TIME (command: $SAFE_CMD). Their belt level is '$BELT'. Provide a brief 2-sentence explanation of what $CONCEPT means and why it matters. Adapt language to their belt level. Keep it concise and non-intrusive."
+    CONTEXT="🥋 CodeSensei micro-lesson trigger: The user just encountered '$CONCEPT' for the FIRST TIME (command: $SAFE_CMD). Their belt level is '$BELT'. Provide a brief 2-sentence explanation of what $CONCEPT means and why it matters. Adapt language to their belt level. Keep it concise and non-intrusive."
   elif [ -n "$CONCEPT" ]; then
     # Already-seen concept: brief inline insight about this specific command
-    CONTEXT="CodeSensei inline insight: Claude just ran a '$CONCEPT' command ($SAFE_CMD). The user's belt level is '$BELT'. Provide a brief 1-sentence explanation of what this command does, adapted to their belt level. Keep it natural and non-intrusive."
-  else
-    # Unknown command type: still provide a brief hint
-    CONTEXT="CodeSensei inline insight: Claude just ran a shell command ($SAFE_CMD). The user's belt level is '$BELT'. If this command is educational, briefly explain what it does in 1 sentence. If trivial, skip the explanation."
+    CONTEXT="🥋 CodeSensei inline insight: Claude just ran a '$CONCEPT' command ($SAFE_CMD). The user's belt level is '$BELT'. Provide a brief 1-sentence explanation of what this command does, adapted to their belt level. Keep it natural and non-intrusive."
   fi
 
   echo "{\"hookSpecificOutput\":{\"hookEventName\":\"PostToolUse\",\"additionalContext\":\"$CONTEXT\"}}"
