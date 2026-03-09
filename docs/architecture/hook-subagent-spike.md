@@ -24,7 +24,7 @@ This creates several problems:
 The SRD explicitly identifies this as the top priority:
 
 > "Shadow coaching is the product -- the subagent IS CodeSensei; everything else is secondary."
-> "No main context injection -- trigger subagent via hooks, never use additionalContext for teaching."
+> "No main context injection for full teaching -- if a bridge is needed before direct hook-to-agent support exists, keep it to a minimal delegation hint only."
 
 The sensei subagent (`agents/sensei.md`) already exists with a full system prompt, belt-aware teaching behavior, and is configured to use the Haiku model. The missing piece is the **communication pipeline** between hooks and this subagent.
 
@@ -238,15 +238,15 @@ Additionally, the `/code-sensei:recap` command is enhanced to always drain the p
 
 ## Recommendation
 
-**Option 5: Hybrid (additionalContext Delegation + Pending Lessons File)**, with a clear migration path toward Option 3 when the protocol supports it.
+**Option 5: Hybrid (minimal additionalContext delegation hint + pending lessons queue)**, with a clear migration path toward Option 3 when the protocol supports it.
 
 ### Rationale
 
 1. **It works today.** No protocol changes, no feature requests, no waiting on Anthropic. We can ship this in the current plugin version.
 
-2. **It respects the North Star.** The sensei subagent becomes the primary teaching engine. The main context receives only a minimal delegation hint, not full teaching content. Teaching quality improves because the sensei agent has the full system prompt, belt-awareness, and teaching philosophy.
+2. **It respects the North Star as a bridge architecture.** The sensei subagent becomes the primary teaching engine. The main context receives only a minimal delegation hint, not full teaching content. Teaching quality improves because the sensei agent has the full system prompt, belt-awareness, and teaching philosophy.
 
-3. **No lost teaching moments.** The JSONL file acts as a durable queue. Even when the main model is too busy to delegate, every teaching opportunity is captured and available for batch delivery via `/code-sensei:recap`.
+3. **No lost teaching moments.** The pending-lessons queue acts as a durable buffer. Even when the main model is too busy to delegate, every teaching opportunity is captured and available for batch delivery via `/code-sensei:recap`.
 
 4. **Progressive enhancement.** The architecture naturally evolves:
    - **Phase 1 (now)**: Hybrid with additionalContext delegation hints
@@ -267,16 +267,16 @@ Additionally, the `/code-sensei:recap` command is enhanced to always drain the p
 
 ### Phase 1: Hybrid Pipeline (estimated 4-6 hours)
 
-**Step 1: Add JSONL writer to hook scripts**
+**Step 1: Add a durable pending-lessons queue to hook scripts**
 
-Modify `scripts/track-code-change.sh` and `scripts/track-command.sh` to write structured teaching triggers to `~/.code-sensei/pending-lessons.jsonl`:
+Modify `scripts/track-code-change.sh` and `scripts/track-command.sh` to write structured teaching triggers to a pending-lessons queue (for example `~/.code-sensei/pending-lessons.jsonl` if we can guarantee append-with-locking, or one JSON file per lesson under `~/.code-sensei/pending-lessons/` if that is simpler cross-platform):
 
 ```jsonl
 {"timestamp":"2026-03-03T12:00:00Z","type":"micro-lesson","tech":"react","file":"src/App.jsx","belt":"white","concept":"react-components"}
 {"timestamp":"2026-03-03T12:01:00Z","type":"inline-insight","tech":"css","file":"src/styles.css","belt":"white","tool":"Edit"}
 ```
 
-Use atomic writes (write to temp file, then `mv`) per the SRD requirement for data integrity.
+Do **not** rewrite a shared JSONL queue with temp-file-plus-`mv` on each event, because concurrent hooks can drop lessons. Use append mode with locking for JSONL, or a one-file-per-lesson queue to avoid append races entirely.
 
 **Step 2: Shorten additionalContext to delegation hint**
 
@@ -285,16 +285,16 @@ Replace the current verbose teaching instructions with a minimal delegation hint
 ```
 Before: "CodeSensei micro-lesson trigger: The user just encountered 'react' for the FIRST TIME (file: src/App.jsx). Their belt level is 'white'. Provide a brief 2-sentence explanation..."
 
-After: "CodeSensei: New teaching moment detected (react, src/App.jsx). If the user is not in the middle of a complex task, use the Task tool to invoke the 'sensei' agent. Pass it the latest entry from ~/.code-sensei/pending-lessons.jsonl."
+After: "CodeSensei: New teaching moment detected (react, src/App.jsx). If the user is not in the middle of a complex task, use the Task tool to invoke the 'sensei' agent. Pass it the latest pending lesson from the local queue."
 ```
 
 **Step 3: Update sensei agent to read pending lessons**
 
-Add instructions to `agents/sensei.md` for reading from the pending lessons file when invoked via Task delegation:
+Add instructions to `agents/sensei.md` for reading from the pending lessons queue when invoked via Task delegation:
 
 ```markdown
 ## When Invoked via Delegation
-If you receive context about pending lessons, read `~/.code-sensei/pending-lessons.jsonl` to get the full teaching context. Process the most recent entry (or batch if multiple are pending). After processing, mark entries as delivered.
+If you receive context about pending lessons, read the local pending-lessons queue to get the full teaching context. Process the most recent entry (or batch if multiple are pending). After processing, mark entries as delivered.
 ```
 
 **Step 4: Enhance /code-sensei:recap to drain pending lessons**
@@ -303,7 +303,7 @@ Modify `commands/recap.md` to instruct the sensei agent to read all undelivered 
 
 **Step 5: Add cleanup to session-stop.sh**
 
-Archive or clear `pending-lessons.jsonl` at session end. The session-stop hook already clears `session_concepts` from the profile; extend it to handle the lessons file.
+Archive or clear the pending-lessons queue at session end. The session-stop hook already clears `session_concepts` from the profile; extend it to handle the lesson queue as well.
 
 **Step 6: Add file rotation and size limits**
 
