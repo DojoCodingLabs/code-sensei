@@ -144,20 +144,18 @@ if [ $? -ne 0 ]; then
   BELT="white"
 fi
 
-# Use json_escape for all dynamic strings embedded in the context JSON value
-ESCAPED_CONCEPT=$(json_escape "$CONCEPT")
-ESCAPED_CMD=$(json_escape "$(printf '%s' "$COMMAND" | head -c 80)")
-ESCAPED_BELT=$(json_escape "$BELT")
+SAFE_CMD=$(printf '%s' "$COMMAND" | head -c 80 | tr '"' "'" | tr '\\' '/')
 
 if [ "$IS_FIRST_EVER" = "true" ] && [ -n "$CONCEPT" ]; then
-  CONTEXT="CodeSensei micro-lesson trigger: The user just encountered ${ESCAPED_CONCEPT} for the FIRST TIME (command: ${ESCAPED_CMD}). Their belt level is ${ESCAPED_BELT}. Provide a brief 2-sentence explanation of what ${ESCAPED_CONCEPT} means and why it matters. Adapt language to their belt level. Keep it concise and non-intrusive."
+  CONTEXT="🥋 CodeSensei micro-lesson trigger: The user just encountered '$CONCEPT' for the FIRST TIME (command: $SAFE_CMD). Their belt level is '$BELT'. Provide a brief 2-sentence explanation of what $CONCEPT means and why it matters. Adapt language to their belt level. Keep it concise and non-intrusive."
 elif [ -n "$CONCEPT" ]; then
-  CONTEXT="CodeSensei inline insight: Claude just ran a ${ESCAPED_CONCEPT} command (${ESCAPED_CMD}). The user's belt level is ${ESCAPED_BELT}. Provide a brief 1-sentence explanation of what this command does, adapted to their belt level. Keep it natural and non-intrusive."
+  CONTEXT="🥋 CodeSensei inline insight: Claude just ran a '$CONCEPT' command ($SAFE_CMD). The user's belt level is '$BELT'. Provide a brief 1-sentence explanation of what this command does, adapted to their belt level. Keep it natural and non-intrusive."
 else
-  CONTEXT="CodeSensei inline insight: Claude just ran a shell command (${ESCAPED_CMD}). The user's belt level is ${ESCAPED_BELT}. If this command is educational, briefly explain what it does in 1 sentence. If trivial, skip the explanation."
+  CONTEXT="🥋 CodeSensei inline insight: Claude just ran a shell command ($SAFE_CMD). The user's belt level is '$BELT'. If this command is educational, briefly explain what it does in 1 sentence. If trivial, skip the explanation."
 fi
 
-# Build final output — context is already a JSON string from json_escape (with quotes)
-printf '{"hookSpecificOutput":{"hookEventName":"PostToolUse","additionalContext":%s}}\n' "$CONTEXT"
+# Escape the full context once before embedding it in the hook payload
+ESCAPED_CONTEXT=$(json_escape "$CONTEXT")
+printf '{"hookSpecificOutput":{"hookEventName":"PostToolUse","additionalContext":%s}}\n' "$ESCAPED_CONTEXT"
 
 exit 0

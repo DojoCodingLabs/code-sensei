@@ -146,19 +146,14 @@ if [ $? -ne 0 ]; then
   BELT="white"
 fi
 
-# Use json_escape for all dynamic strings embedded in the context JSON value
-ESCAPED_TECH=$(json_escape "$TECH")
-ESCAPED_FILE_PATH=$(json_escape "$FILE_PATH")
-ESCAPED_TOOL_NAME=$(json_escape "$TOOL_NAME")
-ESCAPED_BELT=$(json_escape "$BELT")
-
 if [ "$IS_FIRST_EVER" = "true" ]; then
-  CONTEXT="CodeSensei micro-lesson trigger: The user just encountered ${ESCAPED_TECH} for the FIRST TIME (file: ${ESCAPED_FILE_PATH}). Their belt level is ${ESCAPED_BELT}. Provide a brief 2-sentence explanation of what ${ESCAPED_TECH} is and why it matters for their project. Adapt language to their belt level. Keep it concise and non-intrusive — weave it naturally into your response, don't stop everything for a lecture."
+  CONTEXT="🥋 CodeSensei micro-lesson trigger: The user just encountered '$TECH' for the FIRST TIME (file: $FILE_PATH). Their belt level is '$BELT'. Provide a brief 2-sentence explanation of what $TECH is and why it matters for their project. Adapt language to their belt level. Keep it concise and non-intrusive — weave it naturally into your response, don't stop everything for a lecture."
 else
-  CONTEXT="CodeSensei inline insight: Claude just used ${ESCAPED_TOOL_NAME} on ${ESCAPED_FILE_PATH} (${ESCAPED_TECH}). The user's belt level is ${ESCAPED_BELT}. Provide a brief 1-2 sentence explanation of what this change does and why, adapted to their belt level. Keep it natural and non-intrusive — weave it into your response as a quick teaching moment."
+  CONTEXT="🥋 CodeSensei inline insight: Claude just used '$TOOL_NAME' on '$FILE_PATH' ($TECH). The user's belt level is '$BELT'. Provide a brief 1-2 sentence explanation of what this change does and why, adapted to their belt level. Keep it natural and non-intrusive — weave it into your response as a quick teaching moment."
 fi
 
-# Build final output — context is already a JSON string from json_escape (with quotes)
-printf '{"hookSpecificOutput":{"hookEventName":"PostToolUse","additionalContext":%s}}\n' "$CONTEXT"
+# Escape the full context once before embedding it in the hook payload
+ESCAPED_CONTEXT=$(json_escape "$CONTEXT")
+printf '{"hookSpecificOutput":{"hookEventName":"PostToolUse","additionalContext":%s}}\n' "$ESCAPED_CONTEXT"
 
 exit 0
