@@ -51,9 +51,9 @@ Skills Seen But Not Quizzed 🆕 ([count])
 ─────────────────────────────
 [Concepts encountered but never quizzed]
 
-🔒 Locked Skills
-────────────────
-[Concepts whose prerequisites are not all mastered — see step 3b]
+Next Skills 🎯
+──────────────
+[Ready-to-learn and still-locked concepts with prerequisite status — see step 3b]
 
 Recent Achievements 🏆
 ──────────────────────
@@ -64,36 +64,37 @@ Recent Achievements 🏆
 Free & Open Source — github.com/dojocodinglabs/code-sensei
 ```
 
-3b. Build the **Locked Skills** section by reading `data/concept-tree.json`:
+3b. Build the **Next Skills** section by reading `data/concept-tree.json`:
 
-   - Iterate over every concept in every category of `concept-tree.json`.
-   - A concept is **locked** if it has at least one entry in its `prerequisites` array AND not all of those prerequisites appear in the user's `concepts_mastered` list.
-   - A concept is **ready to learn** when ALL prerequisites are in `concepts_mastered` but the concept itself is not yet mastered (it may or may not be in `concepts_seen`).
-   - For each locked concept, check each prerequisite ID against `concepts_mastered`:
-     - Mastered prerequisite → mark with ✅
-     - Unmastered prerequisite → mark with ❌
-   - Sort the locked concepts so that **"Ready to learn"** concepts (all prerequisites ✅) appear first, followed by concepts that still have unmet prerequisites (at least one ❌), ordered by fewest unmet prerequisites first.
-   - Skip concepts whose prerequisites array is empty — those are not locked, they are always available.
-   - Skip concepts the user has already mastered.
-   - Format each locked concept as one line:
+    - Iterate over every concept in every category of `concept-tree.json`.
+    - Include concepts that have at least one prerequisite AND are not yet in `concepts_mastered`.
+    - A concept is **ready to learn** when ALL prerequisites are in `concepts_mastered` but the concept itself is not yet mastered (it may or may not be in `concepts_seen`).
+    - A concept is **still locked** when at least one prerequisite is missing from `concepts_mastered`.
+    - For each included concept, check each prerequisite ID against `concepts_mastered`:
+      - Mastered prerequisite → mark with ✅
+      - Unmastered prerequisite → mark with ❌
+    - Sort the concepts so that **"Ready to learn"** concepts (all prerequisites ✅) appear first, followed by concepts that still have unmet prerequisites (at least one ❌), ordered by fewest unmet prerequisites first.
+    - Skip concepts whose prerequisites array is empty — those are always available and do not belong in this section.
+    - Skip concepts the user has already mastered.
+    - Format each concept as one line:
 
-   ```
-   🔒 [concept-id] — needs: [prereq-id] [✅ or ❌], [prereq-id] [✅ or ❌]
-   ```
+    ```
+    [🟢 or 🔒] [concept-id] — needs: [prereq-id] [✅ or ❌], [prereq-id] [✅ or ❌]
+    ```
 
-   Append ` (Ready to learn!)` at the end of the line when all prerequisites are ✅.
+    Use `🟢` and append ` (Ready to learn!)` when all prerequisites are ✅. Use `🔒` when at least one prerequisite is still missing.
 
-   Example output:
+    Example output:
 
-   ```
-   🔒 Locked Skills
-   ────────────────
-   🔒 state-management — needs: react-components ✅, objects ✅ (Ready to learn!)
-   🔒 middleware — needs: routes ✅, servers ❌
-   🔒 effects — needs: state ❌, async-await ❌
-   ```
+    ```
+    Next Skills 🎯
+    ──────────────
+    🟢 state — needs: react-components ✅ (Ready to learn!)
+    🔒 middleware — needs: routes ✅, servers ❌
+    🔒 effects — needs: state ❌, async-await ❌
+    ```
 
-   If there are no locked concepts (the user has mastered or seen everything), omit this section entirely.
+    If there are no remaining concepts with prerequisites that are not yet mastered, omit this section entirely.
 
 4. If the user is new (no profile), show a welcome instead:
 
