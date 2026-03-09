@@ -22,7 +22,7 @@ jobs:
 
       - name: Run shellcheck on lib scripts (if any)
         run: |
-          if ls scripts/lib/*.sh 2>/dev/null | grep -q .; then
+          if compgen -G "scripts/lib/*.sh" > /dev/null; then
             shellcheck scripts/lib/*.sh
           else
             echo "No scripts/lib/*.sh files found, skipping."
@@ -54,14 +54,14 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Verify concept-tree.json has .categories array
+      - name: Verify concept-tree.json has .categories object
         run: |
           result=$(jq '.categories | type' data/concept-tree.json)
-          if [ "$result" != '"array"' ]; then
-            echo "ERROR: concept-tree.json .categories is not an array (got $result)"
+          if [ "$result" != '"object"' ]; then
+            echo "ERROR: concept-tree.json .categories is not an object (got $result)"
             exit 1
           fi
-          echo "concept-tree.json .categories is a valid array"
+          echo "concept-tree.json .categories is a valid object"
 
       - name: Verify quiz-bank.json is a non-empty object
         run: |
@@ -99,15 +99,13 @@ jobs:
 
       - name: Compare quiz-bank keys vs concept-tree concept keys
         run: |
-          echo "--- Quiz bank top-level keys ---"
-          quiz_keys=$(jq -r 'keys[]' data/quiz-bank.json | sort)
+          echo "--- Quiz bank concept IDs ---"
+          quiz_keys=$(jq -r '.quizzes | keys[]' data/quiz-bank.json | sort)
           echo "$quiz_keys"
 
           echo ""
           echo "--- Concept tree concept IDs ---"
-          concept_keys=$(jq -r '.categories[].concepts[].id' data/concept-tree.json 2>/dev/null | sort || \
-                         jq -r '.categories[] | .concepts // [] | .[].id' data/concept-tree.json 2>/dev/null | sort || \
-                         echo "")
+          concept_keys=$(jq -r '.categories | to_entries[] | .value.concepts | keys[]' data/concept-tree.json | sort)
           echo "$concept_keys"
 
           echo ""
