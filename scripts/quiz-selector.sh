@@ -22,6 +22,30 @@ QUIZ_BANK="$PLUGIN_ROOT/data/quiz-bank.json"
 # Default output if we can't determine anything
 DEFAULT_OUTPUT='{"mode":"dynamic","concept":null,"reason":"No profile data available","static_question":null,"belt":"white","quiz_format":"multiple_choice"}'
 
+select_static_question() {
+  local concept="$1"
+
+  jq -c \
+    --arg concept "$concept" \
+    --arg belt "$BELT" \
+    --arg format "$QUIZ_FORMAT" '
+      def rank($value):
+        if $value == "white" then 0
+        elif $value == "yellow" then 1
+        elif $value == "orange" then 2
+        elif $value == "green" then 3
+        elif $value == "blue" then 4
+        elif $value == "brown" then 5
+        elif $value == "black" then 6
+        else -1
+        end;
+      (.quizzes[$concept] // []) as $questions |
+      (($questions | map(select(rank(.belt) >= 0 and rank(.belt) <= rank($belt) and ((.format // "multiple_choice") == $format))) | first) //
+       ($questions | map(select(rank(.belt) >= 0 and rank(.belt) <= rank($belt))) | first) //
+       null)
+    ' "$QUIZ_BANK"
+}
+
 if ! command -v jq &> /dev/null; then
   echo "$DEFAULT_OUTPUT"
   exit 0
@@ -114,11 +138,7 @@ fi
 
 # If spaced repetition found a concept, check for a static question
 if [ -n "$SPACED_REP_CONCEPT" ] && [ -f "$QUIZ_BANK" ]; then
-  STATIC_Q=$(jq -c --arg concept "$SPACED_REP_CONCEPT" --arg belt "$BELT" '
-    .quizzes[$concept] // [] |
-    map(select(.belt == $belt or .belt == "white")) |
-    first // null
-  ' "$QUIZ_BANK")
+  STATIC_Q=$(select_static_question "$SPACED_REP_CONCEPT")
 
   if [ "$STATIC_Q" != "null" ] && [ -n "$STATIC_Q" ]; then
     echo "{\"mode\":\"spaced_repetition\",\"concept\":\"$SPACED_REP_CONCEPT\",\"reason\":\"$SPACED_REP_REASON\",\"static_question\":$STATIC_Q,\"belt\":\"$BELT\",\"quiz_format\":\"$QUIZ_FORMAT\"}"
@@ -143,11 +163,7 @@ if [ "$SESSION_CONCEPTS" != "[]" ]; then
 fi
 
 if [ -n "$UNQUIZZED_CONCEPT" ] && [ -f "$QUIZ_BANK" ]; then
-  STATIC_Q=$(jq -c --arg concept "$UNQUIZZED_CONCEPT" --arg belt "$BELT" '
-    .quizzes[$concept] // [] |
-    map(select(.belt == $belt or .belt == "white")) |
-    first // null
-  ' "$QUIZ_BANK")
+  STATIC_Q=$(select_static_question "$UNQUIZZED_CONCEPT")
 
   if [ "$STATIC_Q" != "null" ] && [ -n "$STATIC_Q" ]; then
     echo "{\"mode\":\"static\",\"concept\":\"$UNQUIZZED_CONCEPT\",\"reason\":\"New concept from this session — not yet quizzed.\",\"static_question\":$STATIC_Q,\"belt\":\"$BELT\",\"quiz_format\":\"$QUIZ_FORMAT\"}"
@@ -170,11 +186,7 @@ if [ "$CONCEPTS_SEEN" != "[]" ]; then
 fi
 
 if [ -n "$LEAST_QUIZZED" ] && [ "$LEAST_QUIZZED" != "null" ] && [ -f "$QUIZ_BANK" ]; then
-  STATIC_Q=$(jq -c --arg concept "$LEAST_QUIZZED" --arg belt "$BELT" '
-    .quizzes[$concept] // [] |
-    map(select(.belt == $belt or .belt == "white")) |
-    first // null
-  ' "$QUIZ_BANK")
+  STATIC_Q=$(select_static_question "$LEAST_QUIZZED")
 
   echo "{\"mode\":\"static\",\"concept\":\"$LEAST_QUIZZED\",\"reason\":\"Reinforcing least-practiced concept.\",\"static_question\":$STATIC_Q,\"belt\":\"$BELT\",\"quiz_format\":\"$QUIZ_FORMAT\"}"
   exit 0

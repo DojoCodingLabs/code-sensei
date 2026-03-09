@@ -714,7 +714,7 @@
         "hint": "Think of it as a digital ID badge that's been stamped by the server."
       },
       {
-        "belt": "purple",
+        "belt": "brown",
         "format": "free_response",
         "question": "Explain why you should never store passwords in plain text. What is 'hashing' and why is it preferred?",
         "expected_understanding": "Hashing is a one-way function that converts passwords into fixed-length strings. You can't reverse a hash back to the password. When a user logs in, you hash their input and compare hashes. If the database is breached, attackers see hashes, not passwords. Bcrypt adds 'salt' for extra security.",
@@ -885,7 +885,7 @@
         "hint": "Think of an assembly line where each station checks something before passing it along."
       },
       {
-        "belt": "purple",
+        "belt": "brown",
         "format": "free_response",
         "question": "Explain the difference between Continuous Delivery and Continuous Deployment. Why might a team choose one over the other?",
         "expected_understanding": "Continuous Delivery means code is always ready to deploy but requires manual approval for production. Continuous Deployment means every change that passes tests is automatically deployed. Teams handling sensitive data (banking, healthcare) may prefer Delivery for the manual gate, while fast-moving startups may prefer full Deployment.",
@@ -920,7 +920,7 @@
         "hint": "Think of them as 'recipes' that experienced developers have already figured out."
       },
       {
-        "belt": "purple",
+        "belt": "brown",
         "question": "What is the Observer pattern and where might you see it in everyday web development?",
         "options": ["A pattern for watching files for changes", "A pattern where objects subscribe to events and get notified when something changes", "A pattern for monitoring server performance"],
         "correct": 1,
@@ -928,7 +928,7 @@
         "hint": "Think about event listeners and how multiple parts of your app react to changes."
       },
       {
-        "belt": "purple",
+        "belt": "brown",
         "format": "free_response",
         "question": "Explain the Singleton pattern. What problem does it solve, and what are its potential drawbacks?",
         "expected_understanding": "Singleton ensures a class has only one instance (like a database connection pool or config manager). It solves the problem of accidental duplicate instances of shared resources. Drawbacks: it's essentially a global variable (hard to test, tight coupling), can hide dependencies, and makes parallel testing difficult.",
@@ -945,7 +945,7 @@
         "hint": "Think 'scale up' (bigger) versus 'scale out' (more)."
       },
       {
-        "belt": "purple",
+        "belt": "brown",
         "question": "What is a CDN and how does it improve scalability?",
         "options": ["A type of database", "A network of servers worldwide that caches content close to users", "A programming framework"],
         "correct": 1,
@@ -953,7 +953,7 @@
         "hint": "It's about putting copies of your content closer to where your users are."
       },
       {
-        "belt": "purple",
+        "belt": "brown",
         "format": "free_response",
         "question": "Explain what 'caching' means in web development and describe two different levels where caching can occur.",
         "expected_understanding": "Caching stores frequently requested data in a faster location to avoid recomputing or refetching it. Browser cache (stores assets locally), CDN cache (stores content at edge servers), server-side cache like Redis (stores database query results in memory), and database query cache are common levels. Each level trades freshness for speed.",
