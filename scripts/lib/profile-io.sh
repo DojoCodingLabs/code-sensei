@@ -34,12 +34,12 @@ write_profile() {
   fi
 }
 
-# Update profile atomically: takes a jq filter, applies it in one pass.
+# Update profile atomically: forwards jq args and applies them in one pass.
 # Usage: update_profile '.xp += 10'
+#        update_profile --arg tech "$TECH" '.concepts_seen += [$tech]'
 # Requires jq to be installed; callers should guard with `command -v jq`.
 update_profile() {
-  local filter="$1"
   local current
   current=$(read_profile)
-  echo "$current" | jq "$filter" | write_profile
+  printf '%s\n' "$current" | jq "$@" | write_profile
 }
