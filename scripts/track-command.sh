@@ -47,22 +47,35 @@ if command -v jq &> /dev/null; then
   # Log the command
   echo "{\"timestamp\":\"$TIMESTAMP\",\"command\":\"$(echo "$COMMAND" | head -c 200)\",\"concept\":\"$CONCEPT\"}" >> "$COMMANDS_LOG"
 
-  # Track concept in session and lifetime if new and meaningful
-  IS_FIRST_EVER="false"
-  if [ -n "$CONCEPT" ] && [ -f "$PROFILE_FILE" ]; then
-    ALREADY_SEEN=$(jq --arg c "$CONCEPT" '.session_concepts | index($c)' "$PROFILE_FILE")
-    if [ "$ALREADY_SEEN" = "null" ]; then
-      UPDATED=$(jq --arg c "$CONCEPT" '.session_concepts += [$c]' "$PROFILE_FILE")
-      echo "$UPDATED" > "$PROFILE_FILE"
+  record_profile_concept() {
+    local concept="$1"
+    local first_flag_var="$2"
+
+    if [ -z "$concept" ] || [ ! -f "$PROFILE_FILE" ]; then
+      return
     fi
 
-    LIFETIME_SEEN=$(jq --arg c "$CONCEPT" '.concepts_seen | index($c)' "$PROFILE_FILE")
-    if [ "$LIFETIME_SEEN" = "null" ]; then
-      UPDATED=$(jq --arg c "$CONCEPT" '.concepts_seen += [$c]' "$PROFILE_FILE")
-      echo "$UPDATED" > "$PROFILE_FILE"
-      IS_FIRST_EVER="true"
+    local already_in_session
+    local already_in_lifetime
+    local updated
+
+    already_in_session=$(jq --arg c "$concept" '.session_concepts | index($c)' "$PROFILE_FILE")
+    if [ "$already_in_session" = "null" ]; then
+      updated=$(jq --arg c "$concept" '.session_concepts += [$c]' "$PROFILE_FILE")
+      echo "$updated" > "$PROFILE_FILE"
     fi
-  fi
+
+    already_in_lifetime=$(jq --arg c "$concept" '.concepts_seen | index($c)' "$PROFILE_FILE")
+    if [ "$already_in_lifetime" = "null" ]; then
+      updated=$(jq --arg c "$concept" '.concepts_seen += [$c]' "$PROFILE_FILE")
+      echo "$updated" > "$PROFILE_FILE"
+      printf -v "$first_flag_var" '%s' "true"
+    fi
+  }
+
+  # Track concept in session and lifetime if new and meaningful
+  IS_FIRST_EVER="false"
+  record_profile_concept "$CONCEPT" IS_FIRST_EVER
 
   # Always inject teaching context after commands
   BELT=$(jq -r '.belt // "white"' "$PROFILE_FILE" 2>/dev/null || echo "white")
@@ -79,7 +92,8 @@ if command -v jq &> /dev/null; then
     mocha\ *|"mocha"|\
     "npm test"*|"npm run test"*|\
     "yarn test"*|"yarn run test"*|\
-    "npx jest"*|"npx vitest"*)
+    "pnpm test"*|"pnpm run test"*|"pnpm vitest"*|\
+    "npx jest"*|"npx vitest"*|"pnpm exec jest"*|"pnpm exec vitest"*)
       IS_TEST_RUNNER="true"
       ;;
   esac
@@ -117,12 +131,17 @@ if command -v jq &> /dev/null; then
     esac
   fi
 
-  if [ "$IS_FIRST_EVER" = "true" ] && [ -n "$CONCEPT" ]; then
+  ERROR_IS_FIRST_EVER="false"
+  record_profile_concept "$ERROR_CONCEPT" ERROR_IS_FIRST_EVER
+
+  if [ "$ERROR_IS_FIRST_EVER" = "true" ] && [ -n "$ERROR_CONCEPT" ]; then
+    CONTEXT="🥋 CodeSensei micro-lesson trigger: The user just encountered '$ERROR_CONCEPT' for the FIRST TIME while reading command output ($SAFE_CMD). Their belt level is '$BELT'. Provide a brief 2-sentence explanation of how to read this kind of error and why it matters. Adapt language to their belt level. Keep it supportive and practical."
+  elif [ -n "$ERROR_CONCEPT" ]; then
+    # Error detected in command output: teach debugging first
+    CONTEXT="🥋 CodeSensei inline insight: An error appeared in the command output ($SAFE_CMD). The user's belt level is '$BELT'. This is a great moment to teach '$ERROR_CONCEPT' — briefly explain how to read and interpret this type of error in 1-2 sentences, adapted to their belt level. Keep it supportive and practical."
+  elif [ "$IS_FIRST_EVER" = "true" ] && [ -n "$CONCEPT" ]; then
     # First-time encounter: micro-lesson about the concept
     CONTEXT="🥋 CodeSensei micro-lesson trigger: The user just encountered '$CONCEPT' for the FIRST TIME (command: $SAFE_CMD). Their belt level is '$BELT'. Provide a brief 2-sentence explanation of what $CONCEPT means and why it matters. Adapt language to their belt level. Keep it concise and non-intrusive."
-  elif [ -n "$ERROR_CONCEPT" ]; then
-    # Error detected in command output: teach debugging
-    CONTEXT="🥋 CodeSensei inline insight: An error appeared in the command output ($SAFE_CMD). The user's belt level is '$BELT'. This is a great moment to teach '$ERROR_CONCEPT' — briefly explain how to read and interpret this type of error in 1-2 sentences, adapted to their belt level. Keep it supportive and practical."
   elif [ -n "$CONCEPT" ]; then
     # Already-seen concept: brief inline insight about this specific command
     CONTEXT="🥋 CodeSensei inline insight: Claude just ran a '$CONCEPT' command ($SAFE_CMD). The user's belt level is '$BELT'. Provide a brief 1-sentence explanation of what this command does, adapted to their belt level. Keep it natural and non-intrusive."
