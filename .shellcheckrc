@@ -1,0 +1,6 @@
+# CodeSensei shell script conventions
+# Allow sourcing from dynamic paths
+external-sources=true
+# Common patterns we use
+disable=SC2034  # Unused variables (used by sourcing scripts)
+disable=SC2155  # Declare and assign separately (too noisy for our style)
