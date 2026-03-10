@@ -1,166 +1,473 @@
 {
   "version": "2.0.0",
-  "description": "CodeSensei quiz bank — contextual questions organized by concept. Supports multiple choice, free-response, and code-prediction formats. The quiz-selector.sh script reads this bank for spaced repetition and hybrid quiz selection.",
+  "description": "CodeSensei quiz bank \u2014 contextual questions organized by concept. Supports multiple choice, free-response, and code-prediction formats. The quiz-selector.sh script reads this bank for spaced repetition and hybrid quiz selection.",
   "quizzes": {
     "variables": [
       {
         "belt": "white",
         "question": "If you write `let score = 10` and then `score = 25`, what is `score` now?",
-        "options": ["10", "25", "35"],
+        "options": [
+          "10",
+          "25",
+          "35"
+        ],
         "correct": 1,
-        "explanation": "Variables can change! When you write `score = 25`, the old value (10) gets replaced with the new one (25). That's why it's called a 'variable' — it varies.",
-        "hint": "Think of a variable like a whiteboard — you can erase what's there and write something new."
+        "explanation": "Variables can change! When you write `score = 25`, the old value (10) gets replaced with the new one (25). That's why it's called a 'variable' \u2014 it varies.",
+        "hint": "Think of a variable like a whiteboard \u2014 you can erase what's there and write something new."
       },
       {
         "belt": "white",
         "question": "What does `const` mean when declaring a variable?",
-        "options": ["The value can change anytime", "The value stays the same — it's constant", "The variable is deleted after use"],
+        "options": [
+          "The value can change anytime",
+          "The value stays the same \u2014 it's constant",
+          "The variable is deleted after use"
+        ],
         "correct": 1,
-        "explanation": "`const` is short for 'constant' — once you set the value, it can't be changed. Use it when you know the value shouldn't change, like a user's ID.",
+        "explanation": "`const` is short for 'constant' \u2014 once you set the value, it can't be changed. Use it when you know the value shouldn't change, like a user's ID.",
         "hint": "The word 'const' is short for something that means 'unchanging.'"
+      },
+      {
+        "belt": "white",
+        "question": "What happens if you try to use a variable before you create it?",
+        "options": [
+          "It automatically becomes 0",
+          "You get an error",
+          "It works fine with an empty value"
+        ],
+        "correct": 1,
+        "explanation": "You can't use something that doesn't exist yet! The program will throw an error telling you the variable is not defined. Always declare your variables before using them.",
+        "hint": "Think about trying to open a box that hasn't been built yet."
+      },
+      {
+        "belt": "yellow",
+        "question": "What is the difference between `let` and `var` in JavaScript?",
+        "options": [
+          "There is no difference",
+          "`let` is block-scoped while `var` is function-scoped",
+          "`var` is newer than `let`"
+        ],
+        "correct": 1,
+        "explanation": "`let` respects curly braces \u2014 it only exists inside the block where it's declared. `var` ignores blocks and is available throughout the entire function. Modern code prefers `let` because it's more predictable.",
+        "hint": "Think about whether a variable 'leaks out' of an if-block or stays contained."
+      }
+    ],
+    "data-types": [
+      {
+        "belt": "white",
+        "question": "Which of these is a string?",
+        "options": [
+          "42",
+          "true",
+          "\"hello\"",
+          "null"
+        ],
+        "correct": 2,
+        "explanation": "A string is text wrapped in quotes. \"hello\" is a string because it has quotes around it. 42 is a number, true is a boolean, and null means 'nothing.'",
+        "hint": "Strings are always wrapped in something to show they're text."
+      },
+      {
+        "belt": "white",
+        "question": "What is the data type of the value `true`?",
+        "options": [
+          "String",
+          "Number",
+          "Boolean",
+          "Object"
+        ],
+        "correct": 2,
+        "explanation": "A boolean is a true/false value \u2014 like a light switch that's either on or off. Booleans are used in conditionals to make decisions in your code.",
+        "hint": "This data type only has two possible values."
+      },
+      {
+        "belt": "yellow",
+        "question": "What does `null` represent in programming?",
+        "options": [
+          "The number zero",
+          "An empty string",
+          "The intentional absence of any value",
+          "An error"
+        ],
+        "correct": 2,
+        "explanation": "`null` means 'nothing on purpose.' It's different from 0 (which is a number) or an empty string (which is still a string). It's like an empty parking spot \u2014 the spot exists, but nothing is in it.",
+        "hint": "It's not zero, not empty text \u2014 it's deliberately nothing."
+      }
+    ],
+    "conditionals": [
+      {
+        "belt": "white",
+        "question": "What does an `if` statement do?",
+        "options": [
+          "Repeats code multiple times",
+          "Runs code only when a condition is true",
+          "Defines a new variable"
+        ],
+        "correct": 1,
+        "explanation": "An `if` statement checks a condition and only runs the code inside it when that condition is true. It's how programs make decisions \u2014 like a traffic light deciding whether cars can go.",
+        "hint": "Think about how you make decisions in real life: IF it's raining, THEN bring an umbrella."
+      },
+      {
+        "belt": "white",
+        "question": "What does `else` do in an if/else statement?",
+        "options": [
+          "It ends the program",
+          "It runs when the `if` condition is false",
+          "It checks a second condition"
+        ],
+        "correct": 1,
+        "explanation": "`else` is the fallback \u2014 it runs when the `if` condition is NOT true. Together, if/else covers both possibilities: 'if this is true, do A; otherwise, do B.'",
+        "hint": "IF it's sunny, wear sunglasses. Otherwise (ELSE)..."
+      },
+      {
+        "belt": "yellow",
+        "question": "What does this code output? `let x = 5; if (x > 10) { console.log('big'); } else { console.log('small'); }`",
+        "options": [
+          "'big'",
+          "'small'",
+          "Nothing \u2014 it errors",
+          "'big' and 'small'"
+        ],
+        "correct": 1,
+        "explanation": "Since x is 5, and 5 is NOT greater than 10, the `if` condition is false. So the `else` block runs, printing 'small'. Only one branch of an if/else ever runs.",
+        "hint": "Check the condition: is 5 greater than 10?"
+      },
+      {
+        "belt": "orange",
+        "format": "free_response",
+        "question": "Explain what a 'ternary operator' is and when you might prefer it over a full if/else statement.",
+        "expected_understanding": "A ternary is a shorthand if/else written as `condition ? valueIfTrue : valueIfFalse`. It's useful for simple, single-expression decisions, like setting a variable based on a condition.",
+        "hint": "It's a one-line way to choose between two values based on a condition."
+      }
+    ],
+    "functions": [
+      {
+        "belt": "white",
+        "question": "What is a function in programming?",
+        "options": [
+          "A type of variable",
+          "A reusable block of code that performs a specific task",
+          "A file that stores data"
+        ],
+        "correct": 1,
+        "explanation": "A function is like a recipe \u2014 it's a set of instructions you can run whenever you need them. You define it once, then 'call' it by name whenever you want it to execute.",
+        "hint": "Think of something you can use over and over again."
+      },
+      {
+        "belt": "yellow",
+        "question": "Why do developers put code inside functions instead of writing everything in one long file?",
+        "options": [
+          "It makes the code run faster",
+          "So they can reuse the same code without copying it",
+          "Functions are required by the programming language"
+        ],
+        "correct": 1,
+        "explanation": "Functions are reusable recipes! Write it once, use it many times. If you need to calculate a total in 10 different places, you write one function and call it 10 times instead of copying the same code.",
+        "hint": "Think about why a chef writes down a recipe instead of memorizing every step every time."
+      },
+      {
+        "belt": "yellow",
+        "question": "What does `return` do inside a function?",
+        "options": [
+          "It restarts the function from the beginning",
+          "It sends a value back to wherever the function was called",
+          "It prints the value to the screen"
+        ],
+        "correct": 1,
+        "explanation": "`return` sends a result back from the function. Think of asking someone a question \u2014 `return` is their answer coming back to you. After `return`, the function stops running.",
+        "hint": "If you ask a calculator to compute 2+2, it needs to give the answer back to you somehow."
+      },
+      {
+        "belt": "orange",
+        "question": "What is the difference between a function parameter and an argument?",
+        "options": [
+          "They are the same thing",
+          "A parameter is the placeholder in the definition; an argument is the actual value passed when calling",
+          "Parameters are for input; arguments are for output"
+        ],
+        "correct": 1,
+        "explanation": "When you define `function greet(name)`, `name` is a parameter \u2014 a placeholder. When you call `greet('Alice')`, 'Alice' is the argument \u2014 the actual value. Parameters are the parking spots, arguments are the cars that park in them.",
+        "hint": "One belongs to the function definition, the other to the function call."
+      }
+    ],
+    "loops": [
+      {
+        "belt": "white",
+        "question": "What does a loop do in programming?",
+        "options": [
+          "It deletes repeated code",
+          "It runs the same code multiple times",
+          "It connects two files together"
+        ],
+        "correct": 1,
+        "explanation": "A loop repeats a block of code \u2014 either a set number of times or until a condition is met. Instead of writing the same code 100 times, you write it once inside a loop.",
+        "hint": "Think about a song that has a repeating chorus."
+      },
+      {
+        "belt": "white",
+        "question": "How many times does this loop run? `for (let i = 0; i < 3; i++) { console.log(i); }`",
+        "options": [
+          "2 times",
+          "3 times",
+          "4 times",
+          "It runs forever"
+        ],
+        "correct": 1,
+        "explanation": "The loop starts at i=0 and runs while i is less than 3. So it runs for i=0, i=1, i=2 \u2014 that's 3 times. When i becomes 3, the condition `i < 3` is false and the loop stops.",
+        "hint": "Count: 0, 1, 2... how many numbers is that?"
+      },
+      {
+        "belt": "yellow",
+        "question": "What is an 'infinite loop' and why is it a problem?",
+        "options": [
+          "A loop that runs very fast",
+          "A loop that never stops because its condition is always true",
+          "A loop that processes infinite data"
+        ],
+        "correct": 1,
+        "explanation": "An infinite loop happens when the loop's exit condition is never met \u2014 like `while (true)` with no `break`. The program gets stuck running forever, freezing your application. Always make sure your loop has a way to stop!",
+        "hint": "What happens if you tell someone to keep walking and never tell them when to stop?"
+      },
+      {
+        "belt": "orange",
+        "question": "When would you use a `while` loop instead of a `for` loop?",
+        "options": [
+          "When you want the loop to run faster",
+          "When you don't know in advance how many times the loop should run",
+          "When you're looping through an array",
+          "There's no practical difference"
+        ],
+        "correct": 1,
+        "explanation": "`for` loops are great when you know the count (loop 10 times, loop through an array). `while` loops are better when you're waiting for a condition to change (keep reading input until the user types 'quit'). Use the one that makes your intent clearer.",
+        "hint": "Think about 'repeat 5 times' versus 'repeat until done.'"
+      }
+    ],
+    "arrays": [
+      {
+        "belt": "white",
+        "question": "What is an array?",
+        "options": [
+          "A single value like a number or string",
+          "An ordered list that can hold multiple values",
+          "A function that returns multiple results"
+        ],
+        "correct": 1,
+        "explanation": "An array is like a numbered list. It holds multiple values in order, and you can access each one by its position (index). For example, `['apple', 'banana', 'cherry']` is an array of three strings.",
+        "hint": "Think of a shopping list \u2014 it holds multiple items in order."
+      },
+      {
+        "belt": "white",
+        "question": "In most programming languages, what is the index of the FIRST element in an array?",
+        "options": [
+          "1",
+          "0",
+          "-1",
+          "It depends on the value"
+        ],
+        "correct": 1,
+        "explanation": "Arrays start counting at 0, not 1! So `fruits[0]` gives you the first fruit, `fruits[1]` the second, and so on. This is called 'zero-based indexing' and trips up almost every beginner.",
+        "hint": "It's not what you'd expect from everyday counting."
+      },
+      {
+        "belt": "yellow",
+        "question": "What does `.push()` do to an array?",
+        "options": [
+          "Removes the first element",
+          "Adds a new element to the end",
+          "Sorts the array",
+          "Reverses the array"
+        ],
+        "correct": 1,
+        "explanation": "`.push()` adds an item to the END of an array. Think of it like pushing someone to the back of a line. `[1, 2].push(3)` gives you `[1, 2, 3]`.",
+        "hint": "Imagine pushing something onto the end of a stack."
+      },
+      {
+        "belt": "orange",
+        "question": "What does `.filter()` return?",
+        "options": [
+          "A single value",
+          "A new array with only the elements that pass a test",
+          "The original array, modified",
+          "A boolean"
+        ],
+        "correct": 1,
+        "explanation": "`.filter()` creates a NEW array containing only the elements where your test function returns true. The original array is unchanged. `[1,2,3,4].filter(n => n > 2)` returns `[3, 4]`.",
+        "hint": "Think of a coffee filter \u2014 it keeps some things and lets others pass through."
+      }
+    ],
+    "objects": [
+      {
+        "belt": "white",
+        "question": "What is an object in programming?",
+        "options": [
+          "A list of numbered items",
+          "A collection of named properties (key-value pairs)",
+          "A function that creates other functions"
+        ],
+        "correct": 1,
+        "explanation": "An object groups related data under named keys. For example, `{ name: 'Alice', age: 25 }` stores a person's info. Unlike arrays (which use numbers), objects use descriptive names to access values.",
+        "hint": "Think of a contact card with labeled fields like 'name' and 'phone.'"
+      },
+      {
+        "belt": "white",
+        "question": "How do you access the `name` property of this object? `const user = { name: 'Sam', age: 30 };`",
+        "options": [
+          "user[0]",
+          "user.name",
+          "user->name",
+          "name.user"
+        ],
+        "correct": 1,
+        "explanation": "Dot notation (`user.name`) is the most common way to access object properties. You can also use bracket notation (`user['name']`), which is useful when the property name is stored in a variable.",
+        "hint": "The object name comes first, then a dot, then the property name."
+      },
+      {
+        "belt": "yellow",
+        "question": "What is the difference between an array and an object?",
+        "options": [
+          "Arrays are faster than objects",
+          "Arrays use numbered positions; objects use named keys",
+          "Objects can only store strings",
+          "There is no real difference"
+        ],
+        "correct": 1,
+        "explanation": "Arrays are ordered lists accessed by index (position number). Objects are collections accessed by key (property name). Use arrays for lists of similar things, objects for describing something with multiple properties.",
+        "hint": "One uses numbers to find items, the other uses names."
+      },
+      {
+        "belt": "orange",
+        "format": "free_response",
+        "question": "When would you choose to use an array versus an object to store data? Give an example of each.",
+        "expected_understanding": "Arrays for ordered lists of similar items (e.g., a list of usernames). Objects for describing something with named properties (e.g., a user profile with name, email, age). The choice depends on whether order/position or named access matters more.",
+        "hint": "Think about a grocery list versus a recipe card."
       }
     ],
     "html": [
       {
         "belt": "white",
         "question": "What does HTML define on a webpage?",
-        "options": ["The colors and fonts", "The structure and content", "The animations and interactions"],
+        "options": [
+          "The colors and fonts",
+          "The structure and content",
+          "The animations and interactions"
+        ],
         "correct": 1,
-        "explanation": "HTML defines WHAT is on the page — headings, paragraphs, images, buttons. It's the skeleton. CSS handles how it looks, and JavaScript handles what it does.",
+        "explanation": "HTML defines WHAT is on the page \u2014 headings, paragraphs, images, buttons. It's the skeleton. CSS handles how it looks, and JavaScript handles what it does.",
         "hint": "Think of building a house. One thing defines where the walls and rooms go..."
       },
       {
         "belt": "yellow",
         "question": "If you want to add a clickable link to another website, which HTML tag would you use?",
-        "options": ["<link>", "<a>", "<button>"],
+        "options": [
+          "<link>",
+          "<a>",
+          "<button>",
+          "<href>"
+        ],
         "correct": 1,
         "explanation": "The `<a>` tag (short for 'anchor') creates hyperlinks. You write `<a href=\"https://example.com\">Click me</a>`. The `<link>` tag is actually for connecting CSS files, not for clickable links!",
-        "hint": "It's one of the shortest HTML tags — just one letter."
+        "hint": "It's one of the shortest HTML tags \u2014 just one letter."
+      },
+      {
+        "belt": "white",
+        "question": "What is the purpose of the `<head>` section in an HTML document?",
+        "options": [
+          "It displays the main heading on the page",
+          "It contains metadata like the page title and linked stylesheets",
+          "It creates the page header/navigation bar"
+        ],
+        "correct": 1,
+        "explanation": "The `<head>` section holds information ABOUT the page \u2014 its title, linked CSS files, meta tags \u2014 but none of it is visible content. The visible stuff goes in `<body>`. Don't confuse `<head>` with `<header>`!",
+        "hint": "It's the behind-the-scenes information, not what the user sees."
       }
     ],
     "css": [
       {
         "belt": "white",
         "question": "If the text on your page is too small, which file would you change?",
-        "options": ["The HTML file", "The CSS file", "The JavaScript file"],
+        "options": [
+          "The HTML file",
+          "The CSS file",
+          "The JavaScript file"
+        ],
         "correct": 1,
-        "explanation": "CSS controls how things LOOK — size, color, spacing, fonts. The HTML file defines what's on the page, but CSS styles it. You'd change `font-size` in your CSS.",
+        "explanation": "CSS controls how things LOOK \u2014 size, color, spacing, fonts. The HTML file defines what's on the page, but CSS styles it. You'd change `font-size` in your CSS.",
         "hint": "Think about what controls the visual appearance vs the content itself."
-      }
-    ],
-    "functions": [
-      {
-        "belt": "yellow",
-        "question": "Why do developers put code inside functions instead of writing everything in one long file?",
-        "options": ["It makes the code run faster", "So they can reuse the same code without copying it", "Functions are required by the programming language"],
-        "correct": 1,
-        "explanation": "Functions are reusable recipes! Write it once, use it many times. If you need to calculate a total in 10 different places, you write one function and call it 10 times instead of copying the same code.",
-        "hint": "Think about why a chef writes down a recipe instead of memorizing every step every time."
-      }
-    ],
-    "async-await": [
-      {
-        "belt": "orange",
-        "question": "Why does Claude use `await` before some function calls but not others?",
-        "options": ["It makes the code run faster", "The function takes time (like loading data from a server) and we need to wait for the result", "It's just a coding style preference"],
-        "correct": 1,
-        "explanation": "Some operations are instant (like math: 2+2) and some take time (like asking a server for data). `await` tells the program: 'pause here and wait for this to finish before moving on.' Without it, you'd try to use data that hasn't arrived yet!",
-        "hint": "Think about ordering food at a restaurant. Some things you need to wait for..."
-      }
-    ],
-    "react-components": [
-      {
-        "belt": "orange",
-        "question": "Claude just created a `<UserCard />` component. How many times can this be used on the page?",
-        "options": ["Only once — each component is unique", "As many times as you want, each with different data", "Twice at most"],
-        "correct": 1,
-        "explanation": "Components are reusable building blocks! You can use `<UserCard />` once for each user — 5 users? 5 cards. 100 users? 100 cards. Same component, different data (passed through props).",
-        "hint": "Think of components like a cookie cutter — one shape, as many cookies as you want."
       },
       {
-        "belt": "green",
-        "question": "When Claude uses `useState` inside a component, what is it doing?",
-        "options": ["Saving data permanently to a database", "Giving the component its own memory that triggers re-renders when changed", "Creating a global variable accessible everywhere"],
+        "belt": "white",
+        "question": "What does CSS stand for?",
+        "options": [
+          "Computer Style System",
+          "Cascading Style Sheets",
+          "Creative Styling Software"
+        ],
         "correct": 1,
-        "explanation": "useState creates LOCAL memory for that specific component. When the state changes, React automatically re-draws that component with the new data. It's not permanent (refreshing the page resets it) and it's not global (other components can't see it directly).",
-        "hint": "Think of it as the component's personal notebook — only it can read and write to it."
+        "explanation": "CSS stands for Cascading Style Sheets. 'Cascading' means styles can layer on top of each other \u2014 a general style can be overridden by a more specific one, like painting a wall white then painting one section blue.",
+        "hint": "The 'C' word describes how styles flow and override each other."
       },
       {
-        "belt": "orange",
-        "format": "free_response",
-        "question": "In your own words, why does React use components instead of putting everything in one big file?",
-        "expected_understanding": "Components are reusable building blocks. They make code organized, maintainable, and reusable. Each component handles one piece of the UI.",
-        "hint": "Think about LEGO blocks vs. carving a statue from one piece of stone."
-      }
-    ],
-    "routes": [
-      {
-        "belt": "green",
-        "question": "If someone fills out a signup form on your website, which HTTP method sends their data to the server?",
-        "options": ["GET — because we're 'getting' their info", "POST — because we're sending new data to be saved", "DELETE — because we're removing the empty form"],
+        "belt": "yellow",
+        "question": "What is the difference between `margin` and `padding` in CSS?",
+        "options": [
+          "They are the same thing",
+          "Margin is space outside the element; padding is space inside",
+          "Margin is for text; padding is for images"
+        ],
         "correct": 1,
-        "explanation": "POST is for SENDING new data to the server. Think of it like mailing a letter (POSTing it). GET is for requesting/reading data. The names match the action: GET retrieves, POST submits, DELETE removes.",
-        "hint": "The name of this method is also a word for sending mail."
+        "explanation": "Padding is the space INSIDE the element (between the content and the border). Margin is the space OUTSIDE the element (between the border and neighboring elements). Think of a picture frame: padding is the matting inside, margin is the wall space between frames.",
+        "hint": "One is inside the box, one is outside the box."
       }
     ],
-    "sql-basics": [
+    "how-browsers-work": [
       {
-        "belt": "green",
-        "question": "Which SQL keyword would you use to find all users who signed up today?",
-        "options": ["INSERT — to add them to results", "SELECT — to retrieve matching data", "UPDATE — to refresh the data"],
+        "belt": "white",
+        "question": "When you type a URL into your browser, what happens first?",
+        "options": [
+          "The browser starts drawing the page immediately",
+          "The browser sends a request to a server to get the page files",
+          "JavaScript runs to generate the page"
+        ],
         "correct": 1,
-        "explanation": "SELECT is the SQL word for 'show me data that matches my criteria.' You'd write something like `SELECT * FROM users WHERE signup_date = today`. INSERT is for adding NEW data, UPDATE is for changing EXISTING data.",
-        "hint": "You want to 'pick out' or 'choose' certain rows from the database."
-      }
-    ],
-    "git": [
+        "explanation": "The browser sends an HTTP request to a server, asking for the webpage files. The server responds with HTML, CSS, and JavaScript. Then the browser processes these files and renders the page. It's like ordering food \u2014 you ask first, then receive it.",
+        "hint": "The page files have to come from somewhere before the browser can show them."
+      },
       {
         "belt": "yellow",
-        "question": "Claude just ran `git commit -m 'Add login page'`. What did that do?",
-        "options": ["Uploaded the code to GitHub", "Saved a snapshot of the current code with a description", "Deleted the old version of the code"],
+        "question": "What is `localhost` used for in web development?",
+        "options": [
+          "It connects to a remote server",
+          "It refers to your own computer acting as a server for testing",
+          "It locks the server so no one else can access it"
+        ],
         "correct": 1,
-        "explanation": "A commit is like a save point in a video game. It captures the current state of ALL your code with a message describing what changed. But it's only saved LOCALLY — you need `git push` to upload it to GitHub.",
-        "hint": "Think of it as taking a photo of your work at this moment, with a caption."
-      }
-    ],
-    "environment-variables": [
-      {
-        "belt": "yellow",
-        "question": "Why does Claude put API keys in a .env file instead of directly in the code?",
-        "options": ["It makes the code run faster", "So the secret keys aren't visible if someone reads the code or if it's on GitHub", "The programming language requires it"],
-        "correct": 1,
-        "explanation": "If you put passwords or API keys directly in your code and push it to GitHub, anyone can see them! The .env file keeps secrets separate and is added to .gitignore so it never gets uploaded. It's like keeping your house key in your pocket, not taped to the front door.",
-        "hint": "Think about where you'd keep a password — somewhere public or somewhere private?"
-      }
-    ],
-    "package-management": [
-      {
-        "belt": "yellow",
-        "question": "Claude just ran `npm install express`. What happened?",
-        "options": ["It created a new project called Express", "It downloaded the Express library so your project can use it", "It started the Express server"],
-        "correct": 1,
-        "explanation": "npm install downloads code that other developers wrote and shared. Express is a popular library for building web servers. After installing, your project can use it with `import express from 'express'`. Think of it like downloading an app from an app store.",
-        "hint": "The word 'install' gives it away — you're adding something new to your project."
-      }
-    ],
-    "authentication": [
-      {
-        "belt": "blue",
-        "question": "What's the difference between authentication and authorization?",
-        "options": ["They're the same thing — both check passwords", "Authentication verifies WHO you are, authorization checks WHAT you're allowed to do", "Authentication is for admins, authorization is for regular users"],
-        "correct": 1,
-        "explanation": "Authentication = 'Are you who you say you are?' (login with email/password). Authorization = 'Are you allowed to do this?' (can this user delete posts? can they access admin?). A bouncer checks your ID (authentication), then checks the VIP list (authorization).",
-        "hint": "Think about entering a secure building: first they check your identity, then they check your access level."
+        "explanation": "`localhost` is your computer talking to itself. When you run a development server, it starts on localhost (usually localhost:3000 or :8080). This lets you test your website locally before deploying it to the real internet.",
+        "hint": "The word 'local' is the key \u2014 it's not somewhere far away."
       }
     ],
     "js-basics": [
       {
         "belt": "yellow",
         "question": "Why does Claude add `console.log()` statements when debugging?",
-        "options": ["It makes the code run faster", "It prints messages so you can see what the code is doing at that point", "It's required by JavaScript"],
+        "options": [
+          "It makes the code run faster",
+          "It prints messages so you can see what the code is doing at that point",
+          "It's required by JavaScript"
+        ],
         "correct": 1,
         "explanation": "`console.log()` is like putting a spy camera in your code. It shows you what a variable contains or whether a certain part of the code even runs. It's the simplest debugging tool!",
         "hint": "Think about leaving notes for yourself to track what's happening."
+      },
+      {
+        "belt": "yellow",
+        "question": "What is the difference between `==` and `===` in JavaScript?",
+        "options": [
+          "There is no difference",
+          "`==` checks value only; `===` checks value AND type",
+          "`===` is used for strings; `==` is used for numbers"
+        ],
+        "correct": 1,
+        "explanation": "`==` does 'loose' comparison \u2014 it converts types first, so `5 == '5'` is true. `===` does 'strict' comparison \u2014 both value AND type must match, so `5 === '5'` is false. Always prefer `===` to avoid unexpected behavior.",
+        "hint": "One is 'close enough,' the other is 'exactly the same.'"
       },
       {
         "belt": "orange",
@@ -170,13 +477,928 @@
         "hint": "Think about what 'constant' means in everyday language."
       }
     ],
+    "async-await": [
+      {
+        "belt": "orange",
+        "question": "Why does Claude use `await` before some function calls but not others?",
+        "options": [
+          "It makes the code run faster",
+          "The function takes time (like loading data from a server) and we need to wait for the result",
+          "It's just a coding style preference"
+        ],
+        "correct": 1,
+        "explanation": "Some operations are instant (like math: 2+2) and some take time (like asking a server for data). `await` tells the program: 'pause here and wait for this to finish before moving on.' Without it, you'd try to use data that hasn't arrived yet!",
+        "hint": "Think about ordering food at a restaurant. Some things you need to wait for..."
+      },
+      {
+        "belt": "orange",
+        "question": "What does a `Promise` represent in JavaScript?",
+        "options": [
+          "A guaranteed successful result",
+          "A value that might be available now, or in the future, or never",
+          "A way to run code faster",
+          "A type of loop"
+        ],
+        "correct": 1,
+        "explanation": "A Promise is a placeholder for a future value. It can be 'pending' (still working), 'fulfilled' (success with a value), or 'rejected' (failed with an error). `async/await` is a cleaner way to work with Promises.",
+        "hint": "Think of ordering a package online \u2014 you get a tracking number (promise) before the package (value) arrives."
+      },
+      {
+        "belt": "green",
+        "format": "free_response",
+        "question": "What happens if you forget to use `await` before an async function call? Why is this a common source of bugs?",
+        "expected_understanding": "Without await, you get a Promise object instead of the actual result. Code continues executing before the async operation finishes, leading to undefined values or race conditions. It's a common bug because the code doesn't crash \u2014 it just silently uses a Promise where a value was expected.",
+        "hint": "Think about what you'd get back if you didn't wait for the result."
+      }
+    ],
+    "imports-exports": [
+      {
+        "belt": "yellow",
+        "question": "What does `import` do in JavaScript?",
+        "options": [
+          "It downloads a file from the internet",
+          "It brings in code from another file so you can use it",
+          "It creates a copy of a file"
+        ],
+        "correct": 1,
+        "explanation": "`import` lets you use code defined in another file. Instead of putting everything in one giant file, you split your code into modules and import what you need. It's like referencing a chapter from another book.",
+        "hint": "Think about bringing something from one place into another."
+      },
+      {
+        "belt": "yellow",
+        "question": "What is the difference between `export default` and a named export?",
+        "options": [
+          "There is no difference",
+          "A file can have one default export but many named exports",
+          "Default exports are faster"
+        ],
+        "correct": 1,
+        "explanation": "Each file can have one `export default` (the main thing) and unlimited named exports (supporting things). Default exports are imported without curly braces: `import App from './App'`. Named exports need curly braces: `import { helper } from './utils'`.",
+        "hint": "One is the 'main' export, the others are extras."
+      },
+      {
+        "belt": "orange",
+        "question": "What is the difference between `import x from 'y'` and `require('y')` in JavaScript?",
+        "options": [
+          "They are identical",
+          "`import` is the modern ES Module syntax; `require` is the older CommonJS syntax",
+          "`require` is for CSS files only"
+        ],
+        "correct": 1,
+        "explanation": "`import` (ES Modules) is the modern standard \u2014 it's statically analyzed, supports tree-shaking, and works in browsers. `require` (CommonJS) is the older Node.js way \u2014 it's dynamic and runs at runtime. New projects generally use `import`.",
+        "hint": "One is older and came from Node.js, the other is the modern web standard."
+      }
+    ],
+    "json": [
+      {
+        "belt": "yellow",
+        "question": "What is JSON used for?",
+        "options": [
+          "Running JavaScript code",
+          "Storing and exchanging structured data in a text format",
+          "Styling web pages"
+        ],
+        "correct": 1,
+        "explanation": "JSON (JavaScript Object Notation) is a text format for storing data. APIs use it to send data between servers and browsers. It looks like JavaScript objects but with stricter rules (keys must be in double quotes, no trailing commas).",
+        "hint": "It's a way to write data that both humans and computers can read."
+      },
+      {
+        "belt": "yellow",
+        "question": "What does `JSON.parse()` do?",
+        "options": [
+          "Converts a JavaScript object to a JSON string",
+          "Converts a JSON string into a JavaScript object",
+          "Validates whether JSON is correct"
+        ],
+        "correct": 1,
+        "explanation": "`JSON.parse()` takes a JSON string and turns it into a usable JavaScript object. Its opposite is `JSON.stringify()`, which converts an object back to a JSON string. Think: parse = string to object, stringify = object to string.",
+        "hint": "Parse means to read and interpret \u2014 turning text into something the program can use."
+      }
+    ],
+    "dom-manipulation": [
+      {
+        "belt": "yellow",
+        "question": "What is the DOM?",
+        "options": [
+          "A JavaScript framework",
+          "The browser's representation of the HTML page as a tree of objects",
+          "A database for storing web data"
+        ],
+        "correct": 1,
+        "explanation": "The DOM (Document Object Model) is how the browser organizes the HTML page internally \u2014 as a tree of objects you can manipulate with JavaScript. When you change the DOM, the page updates visually.",
+        "hint": "It's the browser's internal model of the page that JavaScript can interact with."
+      },
+      {
+        "belt": "orange",
+        "question": "What does `document.querySelector('.btn')` do?",
+        "options": [
+          "Creates a new button element",
+          "Finds the first element with the class 'btn' in the page",
+          "Deletes all buttons from the page",
+          "Adds the class 'btn' to the document"
+        ],
+        "correct": 1,
+        "explanation": "`querySelector` searches the page and returns the FIRST element matching the CSS selector. `.btn` means 'an element with class btn.' If you need ALL matching elements, use `querySelectorAll` instead.",
+        "hint": "The name says 'query' (search for) and 'selector' (using a CSS selector)."
+      },
+      {
+        "belt": "orange",
+        "question": "What does `addEventListener` do?",
+        "options": [
+          "Creates a new HTML element",
+          "Attaches a function that runs when a specific event happens (like a click)",
+          "Adds CSS styles to an element"
+        ],
+        "correct": 1,
+        "explanation": "`addEventListener('click', handleClick)` says: 'when this element is clicked, run the handleClick function.' You can listen for clicks, key presses, form submissions, mouse movements, and many more events.",
+        "hint": "It 'listens' for something to happen, then acts on it."
+      }
+    ],
+    "terminal-navigation": [
+      {
+        "belt": "white",
+        "question": "What does the `cd` command do in the terminal?",
+        "options": [
+          "Creates a new directory",
+          "Changes your current directory (moves you to a different folder)",
+          "Copies a directory"
+        ],
+        "correct": 1,
+        "explanation": "`cd` stands for 'change directory.' It moves you around the file system. `cd projects` moves into the projects folder, and `cd ..` moves you back up one level.",
+        "hint": "The letters stand for 'change' something."
+      },
+      {
+        "belt": "white",
+        "question": "What does `ls` show you in the terminal?",
+        "options": [
+          "The last command you ran",
+          "The files and folders in your current directory",
+          "The size of your hard drive"
+        ],
+        "correct": 1,
+        "explanation": "`ls` lists the contents of your current directory. It's like opening a folder in your file browser. You can add flags like `ls -la` to see hidden files and more details.",
+        "hint": "Think of it as 'list' abbreviated."
+      },
+      {
+        "belt": "yellow",
+        "question": "What does `pwd` stand for and what does it do?",
+        "options": [
+          "Password \u2014 it shows your saved passwords",
+          "Print Working Directory \u2014 it shows your current location in the file system",
+          "Power Down \u2014 it shuts down the terminal"
+        ],
+        "correct": 1,
+        "explanation": "`pwd` shows the full path to where you currently are, like `/Users/yourname/projects/my-app`. It's helpful when you're lost in the file system and need to know exactly where you are.",
+        "hint": "It tells you WHERE you are right now."
+      }
+    ],
+    "package-management": [
+      {
+        "belt": "yellow",
+        "question": "Claude just ran `npm install express`. What happened?",
+        "options": [
+          "It created a new project called Express",
+          "It downloaded the Express library so your project can use it",
+          "It started the Express server"
+        ],
+        "correct": 1,
+        "explanation": "npm install downloads code that other developers wrote and shared. Express is a popular library for building web servers. After installing, your project can use it with `import express from 'express'`. Think of it like downloading an app from an app store.",
+        "hint": "The word 'install' gives it away \u2014 you're adding something new to your project."
+      },
+      {
+        "belt": "yellow",
+        "question": "What is `package.json` for?",
+        "options": [
+          "It contains all the project's source code",
+          "It lists the project's dependencies and metadata",
+          "It's a configuration file for the database"
+        ],
+        "correct": 1,
+        "explanation": "`package.json` is your project's ID card. It lists all the packages your project depends on, scripts you can run, the project name and version, and more. When someone runs `npm install`, it reads this file to know what to download.",
+        "hint": "It's like an ingredient list for your project."
+      },
+      {
+        "belt": "orange",
+        "question": "What is the purpose of `package-lock.json` (or `yarn.lock`)?",
+        "options": [
+          "It prevents others from installing packages",
+          "It locks exact dependency versions so everyone gets the same install",
+          "It stores your npm username and password"
+        ],
+        "correct": 1,
+        "explanation": "The lock file records the EXACT version of every dependency (and sub-dependency) installed. Without it, two developers could get different versions, causing 'works on my machine' bugs. Always commit your lock file!",
+        "hint": "It 'locks' something in place to ensure consistency."
+      }
+    ],
+    "git": [
+      {
+        "belt": "yellow",
+        "question": "Claude just ran `git commit -m 'Add login page'`. What did that do?",
+        "options": [
+          "Uploaded the code to GitHub",
+          "Saved a snapshot of the current code with a description",
+          "Deleted the old version of the code"
+        ],
+        "correct": 1,
+        "explanation": "A commit is like a save point in a video game. It captures the current state of ALL your code with a message describing what changed. But it's only saved LOCALLY \u2014 you need `git push` to upload it to GitHub.",
+        "hint": "Think of it as taking a photo of your work at this moment, with a caption."
+      },
+      {
+        "belt": "yellow",
+        "question": "What is the difference between `git add` and `git commit`?",
+        "options": [
+          "They do the same thing",
+          "`git add` stages changes for the next commit; `git commit` saves them as a snapshot",
+          "`git add` uploads to GitHub; `git commit` saves locally"
+        ],
+        "correct": 1,
+        "explanation": "`git add` is like putting items in your shopping cart \u2014 you're selecting what to include. `git commit` is like checking out \u2014 it saves everything in the cart as a permanent snapshot. You add first, then commit.",
+        "hint": "One is selecting, the other is saving."
+      },
+      {
+        "belt": "orange",
+        "question": "What does `git branch` let you do?",
+        "options": [
+          "Delete old code",
+          "Create separate lines of development so multiple features can be worked on simultaneously",
+          "Merge two repositories into one"
+        ],
+        "correct": 1,
+        "explanation": "Branches let you work on features in isolation. The `main` branch stays stable while you create a new branch for each feature. When a feature is done and tested, you merge it back into main. It's like parallel universes for your code.",
+        "hint": "Think of a tree \u2014 the trunk is your main code, and branches grow off in different directions."
+      }
+    ],
+    "environment-variables": [
+      {
+        "belt": "yellow",
+        "question": "Why does Claude put API keys in a .env file instead of directly in the code?",
+        "options": [
+          "It makes the code run faster",
+          "So the secret keys aren't visible if someone reads the code or if it's on GitHub",
+          "The programming language requires it"
+        ],
+        "correct": 1,
+        "explanation": "If you put passwords or API keys directly in your code and push it to GitHub, anyone can see them! The .env file keeps secrets separate and is added to .gitignore so it never gets uploaded. It's like keeping your house key in your pocket, not taped to the front door.",
+        "hint": "Think about where you'd keep a password \u2014 somewhere public or somewhere private?"
+      },
+      {
+        "belt": "orange",
+        "question": "How do you access an environment variable named `DATABASE_URL` in Node.js?",
+        "options": [
+          "env.DATABASE_URL",
+          "process.env.DATABASE_URL",
+          "global.DATABASE_URL",
+          "require('DATABASE_URL')"
+        ],
+        "correct": 1,
+        "explanation": "In Node.js, all environment variables are available on the `process.env` object. You access them like `process.env.DATABASE_URL`. Libraries like `dotenv` load your .env file into process.env automatically.",
+        "hint": "It's on a special global object that holds the running process's environment."
+      }
+    ],
+    "react-components": [
+      {
+        "belt": "orange",
+        "question": "Claude just created a `<UserCard />` component. How many times can this be used on the page?",
+        "options": [
+          "Only once \u2014 each component is unique",
+          "As many times as you want, each with different data",
+          "Twice at most"
+        ],
+        "correct": 1,
+        "explanation": "Components are reusable building blocks! You can use `<UserCard />` once for each user \u2014 5 users? 5 cards. 100 users? 100 cards. Same component, different data (passed through props).",
+        "hint": "Think of components like a cookie cutter \u2014 one shape, as many cookies as you want."
+      },
+      {
+        "belt": "orange",
+        "question": "What must a React component always return?",
+        "options": [
+          "A string",
+          "JSX (HTML-like syntax) or null",
+          "A JavaScript object",
+          "A CSS class"
+        ],
+        "correct": 1,
+        "explanation": "React components must return JSX \u2014 a syntax that looks like HTML but lives inside JavaScript. They can also return `null` to render nothing. The JSX gets converted into actual DOM elements by React.",
+        "hint": "It looks like HTML but lives in a .jsx or .tsx file."
+      },
+      {
+        "belt": "green",
+        "format": "free_response",
+        "question": "Explain the difference between a 'controlled' and 'uncontrolled' component in React.",
+        "expected_understanding": "A controlled component has its form data managed by React state (the React state is the 'single source of truth'). An uncontrolled component lets the DOM handle form data directly, using refs to read values when needed. Controlled components offer more control but require more code.",
+        "hint": "It's about who 'owns' the form data \u2014 React or the browser."
+      },
+      {
+        "belt": "green",
+        "question": "When Claude uses `useState` inside a component, what is it doing?",
+        "options": [
+          "Saving data permanently to a database",
+          "Giving the component its own memory that triggers re-renders when changed",
+          "Creating a global variable accessible everywhere"
+        ],
+        "correct": 1,
+        "explanation": "useState creates LOCAL memory for that specific component. When the state changes, React automatically re-draws that component with the new data. It's not permanent (refreshing the page resets it) and it's not global (other components can't see it directly).",
+        "hint": "Think of it as the component's personal notebook \u2014 only it can read and write to it."
+      },
+      {
+        "belt": "orange",
+        "format": "free_response",
+        "question": "In your own words, why does React use components instead of putting everything in one big file?",
+        "expected_understanding": "Components are reusable building blocks. They make code organized, maintainable, and reusable. Each component handles one piece of the UI.",
+        "hint": "Think about LEGO blocks vs. carving a statue from one piece of stone."
+      }
+    ],
+    "props": [
+      {
+        "belt": "orange",
+        "question": "What are 'props' in React?",
+        "options": [
+          "CSS properties applied to components",
+          "Data passed from a parent component to a child component",
+          "Built-in React methods"
+        ],
+        "correct": 1,
+        "explanation": "Props (short for 'properties') are how parent components pass data to their children. Think of them as the arguments you give to a function. `<UserCard name='Alice' />` passes the prop `name` with value 'Alice'.",
+        "hint": "They flow in one direction \u2014 from parent to child."
+      },
+      {
+        "belt": "orange",
+        "question": "Can a child component change the props it receives?",
+        "options": [
+          "Yes, props are like regular variables",
+          "No, props are read-only \u2014 the parent controls them",
+          "Only if the prop is a number"
+        ],
+        "correct": 1,
+        "explanation": "Props are READ-ONLY. A child component can use them but can't change them \u2014 that would violate React's one-way data flow. If a child needs to change something, the parent passes down a callback function as a prop.",
+        "hint": "Think of props as a gift you receive \u2014 you can use it, but you can't change what was given."
+      },
+      {
+        "belt": "green",
+        "question": "What is the `children` prop in React used for?",
+        "options": [
+          "It lists all child components in the app",
+          "It represents content placed between a component's opening and closing tags",
+          "It counts how many child elements exist"
+        ],
+        "correct": 1,
+        "explanation": "The `children` prop lets you pass JSX content between a component's tags: `<Card><h1>Title</h1></Card>`. Inside Card, `props.children` is `<h1>Title</h1>`. It's how you build wrapper/layout components.",
+        "hint": "It's the content that goes 'inside' the component tags."
+      }
+    ],
+    "state": [
+      {
+        "belt": "orange",
+        "question": "When Claude uses `useState` inside a component, what is it doing?",
+        "options": [
+          "Saving data permanently to a database",
+          "Giving the component its own memory that triggers re-renders when changed",
+          "Creating a global variable accessible everywhere"
+        ],
+        "correct": 1,
+        "explanation": "useState creates LOCAL memory for that specific component. When the state changes, React automatically re-draws that component with the new data. It's not permanent (refreshing the page resets it) and it's not global (other components can't see it directly).",
+        "hint": "Think of it as the component's personal notebook \u2014 only it can read and write to it."
+      },
+      {
+        "belt": "orange",
+        "question": "Why can't you just change a state variable directly like `count = count + 1`?",
+        "options": [
+          "JavaScript doesn't allow it",
+          "React won't know the value changed and won't re-render the component",
+          "It would delete the variable"
+        ],
+        "correct": 1,
+        "explanation": "React needs to be TOLD when state changes so it can re-render. The setter function (like `setCount`) is how you tell React. Directly mutating the variable changes the value in memory but React doesn't notice, so the UI stays stale.",
+        "hint": "React needs to be notified \u2014 just changing a variable behind its back doesn't work."
+      },
+      {
+        "belt": "green",
+        "format": "free_response",
+        "question": "Explain why React state updates are asynchronous. What problem could this cause if you read state immediately after setting it?",
+        "expected_understanding": "React batches state updates for performance. If you call setState and immediately read the state variable, you'll get the old value because the update hasn't been processed yet. To work with the new value, use the functional updater form: setCount(prev => prev + 1).",
+        "hint": "Think about what happens if you check the scoreboard right after scoring \u2014 it might not have updated yet."
+      }
+    ],
+    "effects": [
+      {
+        "belt": "orange",
+        "question": "What is `useEffect` used for in React?",
+        "options": [
+          "Adding CSS effects and animations",
+          "Running side effects like data fetching or subscriptions after render",
+          "Creating new React components"
+        ],
+        "correct": 1,
+        "explanation": "`useEffect` runs code AFTER the component renders \u2014 perfect for things like fetching data from an API, setting up timers, or subscribing to events. It keeps side effects separate from the render logic.",
+        "hint": "It handles 'effects' that happen after the component appears on screen."
+      },
+      {
+        "belt": "green",
+        "question": "What does the dependency array in `useEffect(() => { ... }, [count])` control?",
+        "options": [
+          "Which variables the effect can access",
+          "When the effect re-runs \u2014 only when the listed values change",
+          "The order in which effects execute"
+        ],
+        "correct": 1,
+        "explanation": "The dependency array tells React: 'only re-run this effect when these specific values change.' With `[count]`, the effect runs on mount and every time `count` changes. An empty array `[]` means run only once on mount.",
+        "hint": "Think of it as a 'watch list' \u2014 the effect re-runs when watched values change."
+      },
+      {
+        "belt": "green",
+        "format": "free_response",
+        "question": "What happens if you omit the dependency array from useEffect entirely? Why could this be a problem?",
+        "expected_understanding": "Without a dependency array, useEffect runs after EVERY render. This can cause performance issues or infinite loops \u2014 for example, if the effect updates state, which triggers a re-render, which runs the effect again, which updates state...",
+        "hint": "Think about what 'after every render' means if the effect itself causes a re-render."
+      }
+    ],
+    "routing": [
+      {
+        "belt": "orange",
+        "question": "What does client-side routing do differently from traditional page navigation?",
+        "options": [
+          "It loads pages faster by downloading them all upfront",
+          "It updates the page content without a full page reload from the server",
+          "It only works on mobile devices"
+        ],
+        "correct": 1,
+        "explanation": "Traditional navigation reloads the entire page from the server for every link click. Client-side routing swaps content in the browser using JavaScript \u2014 only fetching the data that's different. The URL changes but the page doesn't fully reload, making it feel faster and smoother.",
+        "hint": "Think about the difference between changing a whole billboard versus just swapping one poster on it."
+      },
+      {
+        "belt": "green",
+        "question": "What is a 'dynamic route' like `/users/:id`?",
+        "options": [
+          "A route that randomly changes",
+          "A route with a variable segment that matches different values (e.g., /users/1, /users/42)",
+          "A route that only works sometimes"
+        ],
+        "correct": 1,
+        "explanation": "The `:id` part is a parameter \u2014 it matches any value. `/users/1`, `/users/42`, `/users/alice` all match `/users/:id`. Inside your code, you can read the actual value to fetch the right data.",
+        "hint": "The colon marks a 'fill-in-the-blank' part of the URL."
+      }
+    ],
+    "servers": [
+      {
+        "belt": "green",
+        "question": "What does a web server do?",
+        "options": [
+          "Displays web pages in a browser",
+          "Listens for incoming requests and sends back responses",
+          "Creates HTML files automatically"
+        ],
+        "correct": 1,
+        "explanation": "A server is a program that waits for requests (like someone visiting a URL) and responds with data (HTML, JSON, images, etc.). It's like a restaurant kitchen \u2014 it receives orders and sends out food.",
+        "hint": "It 'serves' things to whoever asks for them."
+      },
+      {
+        "belt": "green",
+        "question": "What does `app.listen(3000)` do in an Express server?",
+        "options": [
+          "Connects to port 3000 on a remote server",
+          "Starts the server and makes it listen for requests on port 3000",
+          "Opens a browser window to localhost:3000"
+        ],
+        "correct": 1,
+        "explanation": "This starts the server on port 3000. Think of a port like a specific door on your computer \u2014 visitors go to localhost:3000 to reach your server. Different apps use different ports so they don't conflict.",
+        "hint": "The server needs to 'listen' somewhere for incoming requests."
+      }
+    ],
+    "routes": [
+      {
+        "belt": "green",
+        "question": "If someone fills out a signup form on your website, which HTTP method sends their data to the server?",
+        "options": [
+          "GET \u2014 because we're 'getting' their info",
+          "POST \u2014 because we're sending new data to be saved",
+          "DELETE \u2014 because we're removing the empty form"
+        ],
+        "correct": 1,
+        "explanation": "POST is for SENDING new data to the server. Think of it like mailing a letter (POSTing it). GET is for requesting/reading data. The names match the action: GET retrieves, POST submits, DELETE removes.",
+        "hint": "The name of this method is also a word for sending mail."
+      },
+      {
+        "belt": "green",
+        "question": "What is the difference between a route parameter and a query parameter?",
+        "options": [
+          "They are the same thing",
+          "Route params are in the URL path (/users/5); query params are after ? (/users?sort=name)",
+          "Query params are more secure"
+        ],
+        "correct": 1,
+        "explanation": "Route parameters are part of the path: `/users/5` (5 is essential \u2014 it identifies which user). Query parameters are optional extras after `?`: `/users?sort=name&page=2`. Use route params for identity, query params for options.",
+        "hint": "One is built into the path, the other comes after a question mark."
+      },
+      {
+        "belt": "blue",
+        "format": "free_response",
+        "question": "Explain the concept of RESTful route naming conventions. Why is it `GET /users/:id` instead of `GET /getUser`?",
+        "expected_understanding": "REST uses HTTP methods (GET, POST, PUT, DELETE) for the action, and nouns (users, posts) for the resource. This keeps routes consistent and predictable. GET /users/:id is preferred because the HTTP method already says 'get' \u2014 putting the verb in the URL is redundant.",
+        "hint": "REST separates WHAT you're acting on (the URL) from WHAT you're doing (the HTTP method)."
+      }
+    ],
+    "middleware": [
+      {
+        "belt": "green",
+        "question": "What is middleware in a web server?",
+        "options": [
+          "Software that runs on the client side",
+          "Functions that process requests before they reach the final route handler",
+          "A database that sits between the frontend and backend"
+        ],
+        "correct": 1,
+        "explanation": "Middleware functions sit in the middle \u2014 between the incoming request and the final route handler. They can modify the request, check authentication, log activity, parse JSON bodies, and more. Each one calls `next()` to pass control to the next middleware.",
+        "hint": "It's in the 'middle' of the request-response pipeline."
+      },
+      {
+        "belt": "green",
+        "question": "What does `next()` do inside a middleware function?",
+        "options": [
+          "Sends the response to the client",
+          "Passes control to the next middleware or route handler in the chain",
+          "Goes back to the previous middleware"
+        ],
+        "correct": 1,
+        "explanation": "Middleware runs in order, like an assembly line. `next()` says 'I'm done, pass it to the next function.' If you forget to call `next()`, the request gets stuck and the client never gets a response (it hangs forever).",
+        "hint": "It moves the request along to the 'next' step in the pipeline."
+      }
+    ],
+    "authentication": [
+      {
+        "belt": "blue",
+        "question": "What's the difference between authentication and authorization?",
+        "options": [
+          "They're the same thing \u2014 both check passwords",
+          "Authentication verifies WHO you are, authorization checks WHAT you're allowed to do",
+          "Authentication is for admins, authorization is for regular users"
+        ],
+        "correct": 1,
+        "explanation": "Authentication = 'Are you who you say you are?' (login with email/password). Authorization = 'Are you allowed to do this?' (can this user delete posts? can they access admin?). A bouncer checks your ID (authentication), then checks the VIP list (authorization).",
+        "hint": "Think about entering a secure building: first they check your identity, then they check your access level."
+      },
+      {
+        "belt": "blue",
+        "question": "What is a JWT (JSON Web Token) used for?",
+        "options": [
+          "Storing passwords securely",
+          "Carrying user identity information in a compact, verifiable token",
+          "Encrypting the entire database"
+        ],
+        "correct": 1,
+        "explanation": "A JWT is a signed token that contains user info (like user ID and role). After login, the server creates a JWT and sends it to the client. The client includes it in future requests to prove who they are \u2014 without the server needing to look up a session.",
+        "hint": "Think of it as a digital ID badge that's been stamped by the server."
+      },
+      {
+        "belt": "brown",
+        "format": "free_response",
+        "question": "Explain why you should never store passwords in plain text. What is 'hashing' and why is it preferred?",
+        "expected_understanding": "Hashing is a one-way function that converts passwords into fixed-length strings. You can't reverse a hash back to the password. When a user logs in, you hash their input and compare hashes. If the database is breached, attackers see hashes, not passwords. Bcrypt adds 'salt' for extra security.",
+        "hint": "Think about what happens if someone steals your database."
+      }
+    ],
+    "rest-api": [
+      {
+        "belt": "green",
+        "question": "What does REST stand for and what is its core principle?",
+        "options": [
+          "Remote Execution of Server Tasks \u2014 it runs code remotely",
+          "Representational State Transfer \u2014 use standard HTTP methods to interact with resources",
+          "Real-time Event Streaming Technology \u2014 it handles live data"
+        ],
+        "correct": 1,
+        "explanation": "REST uses standard HTTP methods (GET, POST, PUT, DELETE) to perform operations on resources (like users, posts, products). Each URL represents a resource, and the HTTP method tells the server what to do with it.",
+        "hint": "It's about representing resources and transferring their state through standard methods."
+      },
+      {
+        "belt": "green",
+        "question": "What does a 404 status code mean?",
+        "options": [
+          "The server crashed",
+          "The requested resource was not found",
+          "The request was successful",
+          "The user is not authenticated"
+        ],
+        "correct": 1,
+        "explanation": "404 means the server understood your request but couldn't find what you asked for. Status codes starting with 2xx mean success, 4xx mean client error, and 5xx mean server error. 404 is the most famous HTTP error!",
+        "hint": "You've probably seen this one when visiting a broken link on the web."
+      },
+      {
+        "belt": "blue",
+        "format": "free_response",
+        "question": "Explain the difference between PUT and PATCH HTTP methods. When would you use each?",
+        "expected_understanding": "PUT replaces the entire resource with the new data (you send the full object). PATCH only updates the specific fields you send. Use PUT for full replacements, PATCH for partial updates. Example: updating just a user's email is a PATCH; sending the complete updated user profile is a PUT.",
+        "hint": "One replaces everything, the other modifies just part of it."
+      }
+    ],
+    "sql-basics": [
+      {
+        "belt": "green",
+        "question": "Which SQL keyword would you use to find all users who signed up today?",
+        "options": [
+          "INSERT \u2014 to add them to results",
+          "SELECT \u2014 to retrieve matching data",
+          "UPDATE \u2014 to refresh the data"
+        ],
+        "correct": 1,
+        "explanation": "SELECT is the SQL word for 'show me data that matches my criteria.' You'd write something like `SELECT * FROM users WHERE signup_date = today`. INSERT is for adding NEW data, UPDATE is for changing EXISTING data.",
+        "hint": "You want to 'pick out' or 'choose' certain rows from the database."
+      },
+      {
+        "belt": "green",
+        "question": "What does `WHERE` do in a SQL query?",
+        "options": [
+          "It specifies which table to query",
+          "It filters rows based on a condition",
+          "It sorts the results"
+        ],
+        "correct": 1,
+        "explanation": "`WHERE` filters your results to only include rows that match a condition. `SELECT * FROM users WHERE age > 18` only returns users over 18. Without WHERE, you get ALL rows \u2014 which could be millions!",
+        "hint": "It's like setting criteria for which rows you want to see."
+      },
+      {
+        "belt": "blue",
+        "format": "free_response",
+        "question": "Explain the difference between WHERE and HAVING in SQL. When must you use HAVING?",
+        "expected_understanding": "WHERE filters individual rows before grouping. HAVING filters groups after GROUP BY. You must use HAVING when filtering on aggregate functions (COUNT, SUM, AVG). Example: HAVING COUNT(*) > 5 filters groups with more than 5 rows.",
+        "hint": "One filters before grouping, the other after."
+      }
+    ],
+    "database-schema": [
+      {
+        "belt": "green",
+        "question": "What is a database schema?",
+        "options": [
+          "The data stored in the database",
+          "The structure that defines tables, columns, and their types",
+          "A query that creates reports"
+        ],
+        "correct": 1,
+        "explanation": "A schema is the blueprint for your database \u2014 it defines what tables exist, what columns each table has, and what type of data each column holds. It's like an architect's plan before the building is built.",
+        "hint": "Think of it as the 'floor plan' for your data."
+      },
+      {
+        "belt": "green",
+        "question": "What is a 'migration' in database development?",
+        "options": [
+          "Moving data from one database to another",
+          "A versioned script that changes the database schema over time",
+          "A backup of the database"
+        ],
+        "correct": 1,
+        "explanation": "Migrations are version-controlled changes to your schema \u2014 like git commits for your database structure. They let you evolve your schema incrementally and roll back if something goes wrong. Tools like Prisma and Knex generate migration files.",
+        "hint": "Think of it as 'version control' for your database structure."
+      }
+    ],
+    "orm": [
+      {
+        "belt": "green",
+        "question": "What does an ORM do?",
+        "options": [
+          "Encrypts database connections",
+          "Lets you interact with databases using your programming language instead of raw SQL",
+          "Optimizes SQL queries for speed"
+        ],
+        "correct": 1,
+        "explanation": "An ORM (Object-Relational Mapper) translates between your programming objects and database tables. Instead of writing `SELECT * FROM users WHERE id = 1`, you write `User.findById(1)`. It maps database rows to language objects.",
+        "hint": "It's a translator between your code language and SQL."
+      },
+      {
+        "belt": "blue",
+        "question": "What is a potential downside of using an ORM instead of raw SQL?",
+        "options": [
+          "ORMs can't handle large databases",
+          "ORMs may generate inefficient queries for complex operations",
+          "ORMs don't support joins"
+        ],
+        "correct": 1,
+        "explanation": "ORMs abstract away SQL, which is great for simple queries. But for complex queries (multiple joins, subqueries, aggregations), the generated SQL can be inefficient. Many developers use an ORM for simple operations and raw SQL for performance-critical queries.",
+        "hint": "Abstraction is convenient but can sometimes hide inefficiency."
+      }
+    ],
+    "relationships": [
+      {
+        "belt": "green",
+        "question": "What is a 'foreign key' in a database?",
+        "options": [
+          "A key from a different programming language",
+          "A column that references the primary key of another table, linking them together",
+          "The main identifier for a table"
+        ],
+        "correct": 1,
+        "explanation": "A foreign key creates a relationship between two tables. If a `posts` table has a `user_id` column that references `users.id`, that's a foreign key. It links each post to the user who wrote it.",
+        "hint": "It's a 'key' that points to a 'foreign' (different) table."
+      },
+      {
+        "belt": "green",
+        "question": "What is the difference between a one-to-many and a many-to-many relationship?",
+        "options": [
+          "There is no practical difference",
+          "One-to-many: one parent has multiple children. Many-to-many: items on both sides can have multiple connections",
+          "One-to-many is faster than many-to-many"
+        ],
+        "correct": 1,
+        "explanation": "One-to-many: one user has many posts (but each post has one author). Many-to-many: students enroll in many courses, and each course has many students. Many-to-many relationships require a 'junction table' to connect the two sides.",
+        "hint": "Think about users-to-posts versus students-to-courses."
+      },
+      {
+        "belt": "blue",
+        "format": "free_response",
+        "question": "Explain what a 'junction table' (or join table) is and why it's needed for many-to-many relationships.",
+        "expected_understanding": "A junction table sits between two tables in a many-to-many relationship. It has foreign keys pointing to both tables. For example, a student_courses table with student_id and course_id columns links students and courses. Without it, there's no way to represent many-to-many in a relational database.",
+        "hint": "Relational databases can only natively express one-to-many. How do you represent many-to-many?"
+      }
+    ],
+    "hosting": [
+      {
+        "belt": "blue",
+        "question": "What does 'deploying' an application mean?",
+        "options": [
+          "Writing the code",
+          "Making the application available on the internet for users to access",
+          "Testing the application locally"
+        ],
+        "correct": 1,
+        "explanation": "Deploying means taking your app from your local machine and putting it on a server that's accessible via the internet. Services like Vercel, Netlify, and Railway make this easy \u2014 often you just connect your GitHub repo and they handle the rest.",
+        "hint": "It's the step where your app goes from 'only I can see it' to 'the world can see it.'"
+      },
+      {
+        "belt": "blue",
+        "question": "What is the difference between a 'static site' and a 'server-rendered' app when it comes to hosting?",
+        "options": [
+          "There is no difference in hosting",
+          "Static sites serve pre-built files; server-rendered apps need a running server to generate pages",
+          "Static sites can't have JavaScript"
+        ],
+        "correct": 1,
+        "explanation": "Static sites are just HTML/CSS/JS files \u2014 cheap to host on CDNs (Netlify, GitHub Pages). Server-rendered apps need a Node.js (or other) server running continuously to generate pages on demand \u2014 more powerful but costs more. Many modern apps use a mix of both.",
+        "hint": "One is just files sitting on a shelf; the other needs a chef cooking to order."
+      }
+    ],
+    "docker": [
+      {
+        "belt": "blue",
+        "question": "What is the primary problem Docker solves?",
+        "options": [
+          "Making code run faster",
+          "Ensuring an app runs the same way on every machine by packaging it with its environment",
+          "Replacing virtual machines entirely"
+        ],
+        "correct": 1,
+        "explanation": "Docker packages your app with everything it needs (OS libraries, runtime, dependencies) into a 'container.' This eliminates 'works on my machine' problems \u2014 if it runs in the container, it runs the same everywhere.",
+        "hint": "Think about shipping a complete kitchen versus just a recipe."
+      },
+      {
+        "belt": "blue",
+        "format": "free_response",
+        "question": "In your own words, what is the difference between a Docker image and a Docker container?",
+        "expected_understanding": "An image is a blueprint/template (like a class). A container is a running instance of an image (like an object). You can run multiple containers from the same image. Images are built from Dockerfiles and are immutable; containers are the live, running environments.",
+        "hint": "Think about the difference between a recipe and a cooked meal."
+      },
+      {
+        "belt": "blue",
+        "format": "free_response",
+        "question": "In your own words, what problem does Docker solve? Why not just run the app directly?",
+        "expected_understanding": "Docker packages an app with all its dependencies so it runs the same everywhere. Solves 'works on my machine' problems by creating consistent environments.",
+        "hint": "Think about shipping a complete kitchen vs. just a recipe."
+      }
+    ],
+    "ci-cd": [
+      {
+        "belt": "blue",
+        "question": "What does CI/CD stand for?",
+        "options": [
+          "Code Integration / Code Deployment",
+          "Continuous Integration / Continuous Deployment",
+          "Container Infrastructure / Cloud Delivery"
+        ],
+        "correct": 1,
+        "explanation": "Continuous Integration means automatically testing code every time someone pushes changes. Continuous Deployment means automatically deploying code that passes all tests. Together, they create a pipeline that tests and ships code with minimal manual work.",
+        "hint": "The word 'continuous' is key \u2014 it happens automatically, every time."
+      },
+      {
+        "belt": "blue",
+        "question": "What is a 'pipeline' in CI/CD?",
+        "options": [
+          "A type of data structure",
+          "An automated sequence of steps (build, test, deploy) triggered by code changes",
+          "A way to connect two servers"
+        ],
+        "correct": 1,
+        "explanation": "A CI/CD pipeline is a sequence of automated steps: build your app, run tests, check for security issues, deploy to staging, deploy to production. Each step must pass before the next one runs. If tests fail, deployment is blocked.",
+        "hint": "Think of an assembly line where each station checks something before passing it along."
+      },
+      {
+        "belt": "brown",
+        "format": "free_response",
+        "question": "Explain the difference between Continuous Delivery and Continuous Deployment. Why might a team choose one over the other?",
+        "expected_understanding": "Continuous Delivery means code is always ready to deploy but requires manual approval for production. Continuous Deployment means every change that passes tests is automatically deployed. Teams handling sensitive data (banking, healthcare) may prefer Delivery for the manual gate, while fast-moving startups may prefer full Deployment.",
+        "hint": "One has a human approval step before production, the other doesn't."
+      }
+    ],
+    "client-server": [
+      {
+        "belt": "blue",
+        "question": "In a client-server architecture, which part renders the user interface?",
+        "options": [
+          "The server",
+          "The client (browser)",
+          "The database",
+          "The API"
+        ],
+        "correct": 1,
+        "explanation": "The client (usually a web browser) renders the UI that users see and interact with. The server handles data, business logic, and storage behind the scenes. They communicate over HTTP \u2014 the client sends requests, the server sends responses.",
+        "hint": "Which part does the user actually see and click on?"
+      },
+      {
+        "belt": "blue",
+        "question": "Why do we separate applications into client and server rather than putting everything in one place?",
+        "options": [
+          "It's just a convention with no real benefit",
+          "Separation allows independent scaling, security boundaries, and multiple clients sharing one backend",
+          "The browser can't run server code"
+        ],
+        "correct": 1,
+        "explanation": "Separation gives you flexibility: the backend can serve a web app, mobile app, and API simultaneously. Security-sensitive code stays on the server (not exposed in the browser). Each part can scale independently based on load.",
+        "hint": "Think about what you gain by keeping secrets on the server and UI on the client."
+      }
+    ],
+    "design-patterns": [
+      {
+        "belt": "blue",
+        "question": "What is a 'design pattern' in software development?",
+        "options": [
+          "A visual design for user interfaces",
+          "A proven, reusable solution to a commonly occurring problem in code",
+          "A way to format your code to look nice"
+        ],
+        "correct": 1,
+        "explanation": "Design patterns are tried-and-true solutions to problems developers face repeatedly. Instead of reinventing the wheel, you apply a known pattern. Examples: Observer (event handling), Singleton (one instance), Factory (creating objects). They're like architectural blueprints for code.",
+        "hint": "Think of them as 'recipes' that experienced developers have already figured out."
+      },
+      {
+        "belt": "brown",
+        "question": "What is the Observer pattern and where might you see it in everyday web development?",
+        "options": [
+          "A pattern for watching files for changes",
+          "A pattern where objects subscribe to events and get notified when something changes",
+          "A pattern for monitoring server performance"
+        ],
+        "correct": 1,
+        "explanation": "The Observer pattern lets objects 'subscribe' to events and react when they happen. You use it constantly in web dev: addEventListener in the DOM, React's state/re-render system, Redux subscriptions, and WebSocket message handlers are all variations of Observer.",
+        "hint": "Think about event listeners and how multiple parts of your app react to changes."
+      },
+      {
+        "belt": "brown",
+        "format": "free_response",
+        "question": "Explain the Singleton pattern. What problem does it solve, and what are its potential drawbacks?",
+        "expected_understanding": "Singleton ensures a class has only one instance (like a database connection pool or config manager). It solves the problem of accidental duplicate instances of shared resources. Drawbacks: it's essentially a global variable (hard to test, tight coupling), can hide dependencies, and makes parallel testing difficult.",
+        "hint": "Think about resources that should only exist once in an application."
+      }
+    ],
+    "scalability": [
+      {
+        "belt": "blue",
+        "question": "What is the difference between 'horizontal scaling' and 'vertical scaling'?",
+        "options": [
+          "Horizontal is for frontend, vertical is for backend",
+          "Horizontal adds more machines; vertical adds more power to one machine",
+          "They are the same thing"
+        ],
+        "correct": 1,
+        "explanation": "Vertical scaling = bigger machine (more CPU, RAM). Horizontal scaling = more machines (distribute the load). Vertical has limits (one machine can only get so big). Horizontal is more flexible but requires your app to handle distributed state.",
+        "hint": "Think 'scale up' (bigger) versus 'scale out' (more)."
+      },
+      {
+        "belt": "brown",
+        "question": "What is a CDN and how does it improve scalability?",
+        "options": [
+          "A type of database",
+          "A network of servers worldwide that caches content close to users",
+          "A programming framework"
+        ],
+        "correct": 1,
+        "explanation": "A CDN (Content Delivery Network) copies your static files (images, CSS, JS) to servers around the world. Users get served from the nearest location, reducing load time. It also takes traffic load off your origin server, improving scalability.",
+        "hint": "It's about putting copies of your content closer to where your users are."
+      },
+      {
+        "belt": "brown",
+        "format": "free_response",
+        "question": "Explain what 'caching' means in web development and describe two different levels where caching can occur.",
+        "expected_understanding": "Caching stores frequently requested data in a faster location to avoid recomputing or refetching it. Browser cache (stores assets locally), CDN cache (stores content at edge servers), server-side cache like Redis (stores database query results in memory), and database query cache are common levels. Each level trades freshness for speed.",
+        "hint": "Think about all the places between the user and the database where data could be temporarily stored."
+      }
+    ],
     "typescript": [
       {
         "belt": "orange",
         "question": "Why does TypeScript add types to JavaScript?",
-        "options": ["To make the code run faster", "To catch bugs before the code runs by checking that data is the right shape", "Because browsers require types"],
+        "options": [
+          "To make the code run faster",
+          "To catch bugs before the code runs by checking that data is the right shape",
+          "Because browsers require types"
+        ],
         "correct": 1,
-        "explanation": "TypeScript is like a spell-checker for your code. It catches mistakes (like passing a number where a string is expected) BEFORE you run the program. Browsers don't actually run TypeScript — it gets converted to regular JavaScript.",
+        "explanation": "TypeScript is like a spell-checker for your code. It catches mistakes (like passing a number where a string is expected) BEFORE you run the program. Browsers don't actually run TypeScript \u2014 it gets converted to regular JavaScript.",
         "hint": "Think about what a spell-checker does for your writing."
       }
     ],
@@ -184,7 +1406,11 @@
       {
         "belt": "white",
         "question": "What makes Python different from many other programming languages in how code is organized?",
-        "options": ["It uses colors to separate code blocks", "It uses indentation (spaces) to show which code belongs together", "It requires semicolons at the end of every line"],
+        "options": [
+          "It uses colors to separate code blocks",
+          "It uses indentation (spaces) to show which code belongs together",
+          "It requires semicolons at the end of every line"
+        ],
         "correct": 1,
         "explanation": "Python uses indentation (spaces at the start of lines) to show code structure. Other languages use curly braces {} for this. If your Python code isn't indented correctly, it won't work!",
         "hint": "Look at how the lines of code are spaced from the left edge."
@@ -194,7 +1420,11 @@
       {
         "belt": "green",
         "question": "Why do developers write automated tests even though they could just click through the app manually?",
-        "options": ["Tests make the app run faster", "Tests automatically check that everything still works after every change", "Tests are required by all programming languages"],
+        "options": [
+          "Tests make the app run faster",
+          "Tests automatically check that everything still works after every change",
+          "Tests are required by all programming languages"
+        ],
         "correct": 1,
         "explanation": "Imagine checking 100 features by hand every time you change one line of code. Tests do this automatically in seconds. They catch bugs that humans would miss and give you confidence to make changes without breaking things.",
         "hint": "Think about what happens when a project has hundreds of features and you change something."
@@ -207,40 +1437,43 @@
         "hint": "Think about testing a car engine by itself vs. testing the whole car on a road."
       }
     ],
-    "docker": [
-      {
-        "belt": "blue",
-        "format": "free_response",
-        "question": "In your own words, what problem does Docker solve? Why not just run the app directly?",
-        "expected_understanding": "Docker packages an app with all its dependencies so it runs the same everywhere. Solves 'works on my machine' problems by creating consistent environments.",
-        "hint": "Think about shipping a complete kitchen vs. just a recipe."
-      }
-    ],
     "error-reading": [
       {
         "belt": "white",
         "question": "What does a stack trace show you?",
-        "options": ["The list of files in your project", "The sequence of function calls that led to the error", "All the variables currently in memory"],
+        "options": [
+          "The list of files in your project",
+          "The sequence of function calls that led to the error",
+          "All the variables currently in memory"
+        ],
         "correct": 1,
-        "explanation": "A stack trace is like a breadcrumb trail — it shows every function that was called, in order, up until the crash. Reading it from bottom to top tells you where the error originated and how the code got there.",
+        "explanation": "A stack trace is like a breadcrumb trail \u2014 it shows every function that was called, in order, up until the crash. Reading it from bottom to top tells you where the error originated and how the code got there.",
         "hint": "Think of it as a history of every step the program took before it fell over."
       },
       {
         "belt": "white",
         "question": "What is the first thing you should read in an error message?",
-        "options": ["The line number at the very bottom", "The error type and the first line of the message", "The full stack trace from top to bottom"],
+        "options": [
+          "The line number at the very bottom",
+          "The error type and the first line of the message",
+          "The full stack trace from top to bottom"
+        ],
         "correct": 1,
         "explanation": "The error type (like `TypeError` or `SyntaxError`) and the first descriptive line tell you WHAT went wrong. Once you know what, you can use the line number and stack trace to figure out WHERE. Start at the top, not the bottom.",
-        "hint": "Skimming a news article — you read the headline first, then the details."
+        "hint": "Skimming a news article \u2014 you read the headline first, then the details."
       }
     ],
     "debugging-mindset": [
       {
         "belt": "yellow",
         "question": "What is the most effective first step when debugging?",
-        "options": ["Delete the code and rewrite it from scratch", "Reproduce the error reliably, then read the error message carefully", "Ask someone else to fix it"],
+        "options": [
+          "Delete the code and rewrite it from scratch",
+          "Reproduce the error reliably, then read the error message carefully",
+          "Ask someone else to fix it"
+        ],
         "correct": 1,
-        "explanation": "You can't fix what you can't consistently reproduce. Once you can make the bug happen on demand, read the error message carefully — it usually tells you exactly what went wrong and where. Only after understanding the error should you start changing code.",
+        "explanation": "You can't fix what you can't consistently reproduce. Once you can make the bug happen on demand, read the error message carefully \u2014 it usually tells you exactly what went wrong and where. Only after understanding the error should you start changing code.",
         "hint": "A doctor diagnoses before prescribing. What's the equivalent first step for a bug?"
       }
     ],
@@ -248,16 +1481,20 @@
       {
         "belt": "orange",
         "question": "What typically causes a ReferenceError in JavaScript?",
-        "options": ["Using the wrong data type in a calculation", "Trying to use a variable that hasn't been declared or is out of scope", "A typo in an HTML tag"],
+        "options": [
+          "Using the wrong data type in a calculation",
+          "Trying to use a variable that hasn't been declared or is out of scope",
+          "A typo in an HTML tag"
+        ],
         "correct": 1,
         "explanation": "A `ReferenceError` means JavaScript looked for a variable name and couldn't find it anywhere in scope. Common causes: misspelling the variable name, using it before declaring it, or accessing it outside the block where it was defined.",
-        "hint": "The error name says 'reference' — what does it mean when a reference points to nothing?"
+        "hint": "The error name says 'reference' \u2014 what does it mean when a reference points to nothing?"
       },
       {
         "belt": "orange",
         "format": "free_response",
         "question": "What's the difference between a syntax error and a runtime error? Give an example of each.",
-        "expected_understanding": "A syntax error is caught before the code runs — it's a grammar mistake the interpreter can't parse (e.g., missing closing bracket). A runtime error happens while the code is running, when an operation fails on valid-looking code (e.g., calling a method on null).",
+        "expected_understanding": "A syntax error is caught before the code runs \u2014 it's a grammar mistake the interpreter can't parse (e.g., missing closing bracket). A runtime error happens while the code is running, when an operation fails on valid-looking code (e.g., calling a method on null).",
         "hint": "Think about the difference between a grammatically incorrect sentence and a sentence that makes sense but describes something impossible."
       }
     ]
