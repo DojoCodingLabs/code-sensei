@@ -2,17 +2,20 @@
 # CodeSensei — Session Start Hook
 # Loads user profile and updates streak on each Claude Code session start
 
-PROFILE_DIR="$HOME/.code-sensei"
-PROFILE_FILE="$PROFILE_DIR/profile.json"
-SESSION_LOG="$PROFILE_DIR/sessions.log"
+# Resolve lib path relative to this script's location (portable, no CLAUDE_PLUGIN_ROOT needed at source time)
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+# shellcheck source=lib/profile-io.sh
+source "${SCRIPT_DIR}/lib/profile-io.sh"
+
+SESSION_LOG="${PROFILE_DIR}/sessions.log"
 TODAY=$(date -u +%Y-%m-%d)
 
-# Create profile directory if it doesn't exist
-mkdir -p "$PROFILE_DIR"
+# Ensure profile directory exists
+ensure_profile_dir
 
 # Create default profile if none exists
 if [ ! -f "$PROFILE_FILE" ]; then
-  cat > "$PROFILE_FILE" << PROFILE
+  cat <<PROFILE | write_profile
 {
   "version": "1.0.0",
   "plugin": "code-sensei",
@@ -56,7 +59,7 @@ if [ ! -f "$PROFILE_FILE" ]; then
   "session_concepts": []
 }
 PROFILE
-  echo "🥋 Welcome to CodeSensei by Dojo Coding! Use /code-sensei:progress to get started."
+  echo "Welcome to CodeSensei by Dojo Coding! Use /code-sensei:progress to get started."
   exit 0
 fi
 
@@ -90,8 +93,8 @@ if command -v jq &> /dev/null; then
     NEW_LONGEST=$LONGEST_STREAK
   fi
 
-  # Update profile
-  UPDATED=$(jq \
+  # Update profile atomically in a single jq pass
+  update_profile \
     --arg today "$TODAY" \
     --argjson streak "$NEW_STREAK" \
     --argjson longest "$NEW_LONGEST" \
@@ -101,20 +104,14 @@ if command -v jq &> /dev/null; then
      .streak.last_session_date = $today |
      .sessions.total = $sessions |
      .sessions.last_session = $today |
-     .session_concepts = []' \
-    "$PROFILE_FILE")
-
-  echo "$UPDATED" > "$PROFILE_FILE"
+     .session_concepts = []'
 
   # Log session
   echo "$TODAY $(date -u +%H:%M:%S) session_start" >> "$SESSION_LOG"
 
   # Show streak info if notable
-  BELT=$(jq -r '.belt // "white"' "$PROFILE_FILE")
-  XP=$(jq -r '.xp // 0' "$PROFILE_FILE")
-
   if [ "$NEW_STREAK" -ge 7 ] && [ "$NEW_STREAK" != "$CURRENT_STREAK" ]; then
-    echo "🔥 $NEW_STREAK-day streak! Consistency is the Dojo Way."
+    echo "$NEW_STREAK-day streak! Consistency is the Dojo Way."
   fi
 fi
 
