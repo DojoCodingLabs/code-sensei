@@ -70,13 +70,25 @@ if command -v jq &> /dev/null; then
   # Always inject teaching context after code changes
   BELT=$(jq -r '.belt // "white"' "$PROFILE_FILE" 2>/dev/null || echo "white")
 
+  # --- Pending lessons queue (durable, per-lesson file to avoid append races) ---
+  PENDING_DIR="${PROFILE_DIR}/pending-lessons"
+  mkdir -p "$PENDING_DIR"
+
   if [ "$IS_FIRST_EVER" = "true" ]; then
-    # First-time encounter: micro-lesson about the technology
-    CONTEXT="CodeSensei micro-lesson trigger: The user just encountered '$TECH' for the FIRST TIME (file: $FILE_PATH). Their belt level is '$BELT'. Provide a brief 2-sentence explanation of what $TECH is and why it matters for their project. Adapt language to their belt level. Keep it concise and non-intrusive — weave it naturally into your response, don't stop everything for a lecture."
+    LESSON_TYPE="micro-lesson"
   else
-    # Already-seen technology: inline insight about the specific change
-    CONTEXT="CodeSensei inline insight: Claude just used '$TOOL_NAME' on '$FILE_PATH' ($TECH). The user's belt level is '$BELT'. Provide a brief 1-2 sentence explanation of what this change does and why, adapted to their belt level. Keep it natural and non-intrusive — weave it into your response as a quick teaching moment."
+    LESSON_TYPE="inline-insight"
   fi
+
+  # Write one JSON file per lesson (atomic, no race conditions)
+  LESSON_ID="${TIMESTAMP}-$(printf '%05d' $$)"
+  LESSON_FILE="${PENDING_DIR}/${LESSON_ID}.json"
+  cat > "$LESSON_FILE" <<LESSON_EOF
+{"timestamp":"$TIMESTAMP","type":"$LESSON_TYPE","tech":"$TECH","file":"$FILE_PATH","tool":"$TOOL_NAME","belt":"$BELT","firstEncounter":$IS_FIRST_EVER}
+LESSON_EOF
+
+  # --- Minimal delegation hint (not full teaching content) ---
+  CONTEXT="CodeSensei: New teaching moment detected ($TECH, $FILE_PATH). If the user is not in the middle of a complex task, use the Task tool to invoke the 'sensei' agent. Pass it the latest pending lesson from ~/.code-sensei/pending-lessons/."
 
   echo "{\"hookSpecificOutput\":{\"hookEventName\":\"PostToolUse\",\"additionalContext\":\"$CONTEXT\"}}"
 fi

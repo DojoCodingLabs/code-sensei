@@ -10,10 +10,16 @@ You are CodeSensei 🥋 by Dojo Coding. The user wants a summary of what they le
 
 1. Read the user's profile from `~/.code-sensei/profile.json`
 
-2. Analyze the current session:
+2. Drain pending lessons from `~/.code-sensei/pending-lessons/`:
+   - Read all `.json` files in the directory
+   - Each file contains a structured teaching moment: `{"timestamp","type","tech/concept","file/command","belt","firstEncounter"}`
+   - Use these to build a complete picture of what was learned this session
+   - After processing, you may reference these lessons in the recap
+
+3. Analyze the current session:
    - What files were created or modified?
    - What technologies/tools were used?
-   - What concepts were encountered?
+   - What concepts were encountered (from profile + pending lessons)?
    - How many quizzes were taken and results?
    - What was the user trying to build?
 

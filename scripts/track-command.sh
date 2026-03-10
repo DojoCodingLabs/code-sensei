@@ -73,16 +73,28 @@ if command -v jq &> /dev/null; then
   # Sanitize command for JSON (remove quotes and special chars)
   SAFE_CMD=$(echo "$COMMAND" | head -c 80 | tr '"' "'" | tr '\\' '/')
 
+  # --- Pending lessons queue (durable, per-lesson file to avoid append races) ---
+  PENDING_DIR="${PROFILE_DIR}/pending-lessons"
+  mkdir -p "$PENDING_DIR"
+
   if [ "$IS_FIRST_EVER" = "true" ] && [ -n "$CONCEPT" ]; then
-    # First-time encounter: micro-lesson about the concept
-    CONTEXT="CodeSensei micro-lesson trigger: The user just encountered '$CONCEPT' for the FIRST TIME (command: $SAFE_CMD). Their belt level is '$BELT'. Provide a brief 2-sentence explanation of what $CONCEPT means and why it matters. Adapt language to their belt level. Keep it concise and non-intrusive."
+    LESSON_TYPE="micro-lesson"
   elif [ -n "$CONCEPT" ]; then
-    # Already-seen concept: brief inline insight about this specific command
-    CONTEXT="CodeSensei inline insight: Claude just ran a '$CONCEPT' command ($SAFE_CMD). The user's belt level is '$BELT'. Provide a brief 1-sentence explanation of what this command does, adapted to their belt level. Keep it natural and non-intrusive."
+    LESSON_TYPE="inline-insight"
   else
-    # Unknown command type: still provide a brief hint
-    CONTEXT="CodeSensei inline insight: Claude just ran a shell command ($SAFE_CMD). The user's belt level is '$BELT'. If this command is educational, briefly explain what it does in 1 sentence. If trivial, skip the explanation."
+    LESSON_TYPE="command-hint"
   fi
+
+  # Write one JSON file per lesson (atomic, no race conditions)
+  LESSON_ID="${TIMESTAMP}-$(printf '%05d' $$)"
+  LESSON_FILE="${PENDING_DIR}/${LESSON_ID}.json"
+  cat > "$LESSON_FILE" <<LESSON_EOF
+{"timestamp":"$TIMESTAMP","type":"$LESSON_TYPE","concept":"$CONCEPT","command":"$SAFE_CMD","belt":"$BELT","firstEncounter":$IS_FIRST_EVER}
+LESSON_EOF
+
+  # --- Minimal delegation hint (not full teaching content) ---
+  DISPLAY_TOPIC="${CONCEPT:-shell command}"
+  CONTEXT="CodeSensei: New teaching moment detected ($DISPLAY_TOPIC, $SAFE_CMD). If the user is not in the middle of a complex task, use the Task tool to invoke the 'sensei' agent. Pass it the latest pending lesson from ~/.code-sensei/pending-lessons/."
 
   echo "{\"hookSpecificOutput\":{\"hookEventName\":\"PostToolUse\",\"additionalContext\":\"$CONTEXT\"}}"
 fi

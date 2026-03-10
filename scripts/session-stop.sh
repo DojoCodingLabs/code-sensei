@@ -27,6 +27,23 @@ if command -v jq &> /dev/null; then
   # Clear session-specific data atomically
   update_profile '.session_concepts = []'
 
+  # Archive pending lessons from this session
+  PENDING_DIR="${PROFILE_DIR}/pending-lessons"
+  ARCHIVE_DIR="${PROFILE_DIR}/lessons-archive"
+  if [ -d "$PENDING_DIR" ] && [ "$(ls -A "$PENDING_DIR" 2>/dev/null)" ]; then
+    mkdir -p "$ARCHIVE_DIR"
+    ARCHIVE_FILE="${ARCHIVE_DIR}/${TODAY}.jsonl"
+    # Concatenate all pending lesson files into the daily archive
+    for f in "$PENDING_DIR"/*.json; do
+      [ -f "$f" ] && cat "$f" >> "$ARCHIVE_FILE"
+    done
+    # Clear the pending queue
+    rm -f "$PENDING_DIR"/*.json
+
+    # Cap archive size: keep only last 30 days of archives (~1MB)
+    find "$ARCHIVE_DIR" -name "*.jsonl" -type f | sort | head -n -30 | xargs -r rm -f
+  fi
+
   # Show gentle reminder if they learned things but didn't recap
   if [ "$SESSION_CONCEPTS" -gt 0 ]; then
     echo "You encountered $SESSION_CONCEPTS new concepts this session! Use /code-sensei:recap next time for a full summary."
