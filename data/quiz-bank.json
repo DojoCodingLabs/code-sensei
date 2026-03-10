@@ -215,6 +215,51 @@
         "expected_understanding": "Docker packages an app with all its dependencies so it runs the same everywhere. Solves 'works on my machine' problems by creating consistent environments.",
         "hint": "Think about shipping a complete kitchen vs. just a recipe."
       }
+    ],
+    "error-reading": [
+      {
+        "belt": "white",
+        "question": "What does a stack trace show you?",
+        "options": ["The list of files in your project", "The sequence of function calls that led to the error", "All the variables currently in memory"],
+        "correct": 1,
+        "explanation": "A stack trace is like a breadcrumb trail — it shows every function that was called, in order, up until the crash. Reading it from bottom to top tells you where the error originated and how the code got there.",
+        "hint": "Think of it as a history of every step the program took before it fell over."
+      },
+      {
+        "belt": "white",
+        "question": "What is the first thing you should read in an error message?",
+        "options": ["The line number at the very bottom", "The error type and the first line of the message", "The full stack trace from top to bottom"],
+        "correct": 1,
+        "explanation": "The error type (like `TypeError` or `SyntaxError`) and the first descriptive line tell you WHAT went wrong. Once you know what, you can use the line number and stack trace to figure out WHERE. Start at the top, not the bottom.",
+        "hint": "Skimming a news article — you read the headline first, then the details."
+      }
+    ],
+    "debugging-mindset": [
+      {
+        "belt": "yellow",
+        "question": "What is the most effective first step when debugging?",
+        "options": ["Delete the code and rewrite it from scratch", "Reproduce the error reliably, then read the error message carefully", "Ask someone else to fix it"],
+        "correct": 1,
+        "explanation": "You can't fix what you can't consistently reproduce. Once you can make the bug happen on demand, read the error message carefully — it usually tells you exactly what went wrong and where. Only after understanding the error should you start changing code.",
+        "hint": "A doctor diagnoses before prescribing. What's the equivalent first step for a bug?"
+      }
+    ],
+    "common-errors": [
+      {
+        "belt": "orange",
+        "question": "What typically causes a ReferenceError in JavaScript?",
+        "options": ["Using the wrong data type in a calculation", "Trying to use a variable that hasn't been declared or is out of scope", "A typo in an HTML tag"],
+        "correct": 1,
+        "explanation": "A `ReferenceError` means JavaScript looked for a variable name and couldn't find it anywhere in scope. Common causes: misspelling the variable name, using it before declaring it, or accessing it outside the block where it was defined.",
+        "hint": "The error name says 'reference' — what does it mean when a reference points to nothing?"
+      },
+      {
+        "belt": "orange",
+        "format": "free_response",
+        "question": "What's the difference between a syntax error and a runtime error? Give an example of each.",
+        "expected_understanding": "A syntax error is caught before the code runs — it's a grammar mistake the interpreter can't parse (e.g., missing closing bracket). A runtime error happens while the code is running, when an operation fails on valid-looking code (e.g., calling a method on null).",
+        "hint": "Think about the difference between a grammatically incorrect sentence and a sentence that makes sense but describes something impossible."
+      }
     ]
   }
 }

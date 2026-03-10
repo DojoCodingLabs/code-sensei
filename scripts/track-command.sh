@@ -33,6 +33,44 @@ else
   check_jq() { command -v jq &>/dev/null; }
 fi
 
+record_profile_concept() {
+  local concept="$1"
+  local first_flag_var="$2"
+  local already_in_session
+  local already_in_lifetime
+
+  if [ -z "$concept" ] || [ ! -f "$PROFILE_FILE" ]; then
+    return
+  fi
+
+  already_in_session=$(jq --arg c "$concept" '.session_concepts | index($c)' "$PROFILE_FILE" 2>&1)
+  if [ $? -ne 0 ]; then
+    log_error "$SCRIPT_NAME" "jq failed checking session_concepts for $concept: $already_in_session"
+    already_in_session="0"
+  fi
+
+  already_in_lifetime=$(jq --arg c "$concept" '.concepts_seen | index($c)' "$PROFILE_FILE" 2>&1)
+  if [ $? -ne 0 ]; then
+    log_error "$SCRIPT_NAME" "jq failed checking concepts_seen for $concept: $already_in_lifetime"
+    already_in_lifetime="0"
+  fi
+
+  if [ "$already_in_lifetime" = "null" ]; then
+    if update_profile --arg c "$concept" '
+      .session_concepts += (if (.session_concepts | index($c)) == null then [$c] else [] end) |
+      .concepts_seen += (if (.concepts_seen | index($c)) == null then [$c] else [] end)
+    '; then
+      printf -v "$first_flag_var" '%s' "true"
+    else
+      log_error "$SCRIPT_NAME" "Failed updating profile for first-time concept: $concept"
+    fi
+  elif [ "$already_in_session" = "null" ]; then
+    if ! update_profile --arg c "$concept" '.session_concepts += [$c]'; then
+      log_error "$SCRIPT_NAME" "Failed updating session_concepts for concept: $concept"
+    fi
+  fi
+}
+
 INPUT=$(cat)
 
 ensure_profile_dir
@@ -104,40 +142,51 @@ then
   log_error "$SCRIPT_NAME" "Failed to write to commands log: $COMMANDS_LOG"
 fi
 
-if [ -z "$CONCEPT" ]; then
+SAFE_CMD=$(printf '%s' "$COMMAND" | head -c 80 | tr '"' "'" | tr '\\' '/')
+
+IS_TEST_RUNNER="false"
+case "$COMMAND" in
+  jest\ *|"jest"|\
+  pytest\ *|"pytest"|\
+  vitest\ *|"vitest"|\
+  bats\ *|"bats"|\
+  mocha\ *|"mocha"|\
+  "npm test"*|"npm run test"*|\
+  "yarn test"*|"yarn run test"*|\
+  "pnpm test"*|"pnpm run test"*|"pnpm vitest"*|\
+  "npx jest"*|"npx vitest"*|"pnpm exec jest"*|"pnpm exec vitest"*)
+    IS_TEST_RUNNER="true"
+    ;;
+esac
+
+ERROR_CONCEPT=""
+if [ "$IS_TEST_RUNNER" = "false" ]; then
+  TOOL_RESPONSE=$(printf '%s' "$INPUT" | jq -r '.tool_response // ""' 2>/dev/null || echo "")
+  STDOUT=$(printf '%s' "$INPUT" | jq -r '.tool_response.stdout // ""' 2>/dev/null || echo "")
+  STDERR=$(printf '%s' "$INPUT" | jq -r '.tool_response.stderr // ""' 2>/dev/null || echo "")
+  OUTPUT="${STDOUT}${STDERR}${TOOL_RESPONSE}"
+
+  case "$OUTPUT" in
+    *"Traceback (most recent call last):"*) ERROR_CONCEPT="error-reading" ;;
+    *"TypeError"*|*"ReferenceError"*|*"SyntaxError"*) ERROR_CONCEPT="common-errors" ;;
+    *"Error:"*|*"ERROR:"*|*"error:"*) ERROR_CONCEPT="error-reading" ;;
+    *"ENOENT"*|*"EACCES"*|*"EPERM"*) ERROR_CONCEPT="error-reading" ;;
+    *"command not found"*) ERROR_CONCEPT="error-reading" ;;
+    *"ModuleNotFoundError"*|*"ImportError"*) ERROR_CONCEPT="error-reading" ;;
+    *"fatal:"*) ERROR_CONCEPT="error-reading" ;;
+  esac
+fi
+
+if [ -z "$CONCEPT" ] && [ -z "$ERROR_CONCEPT" ]; then
   printf '{}\n'
   exit 0
 fi
 
 IS_FIRST_EVER="false"
-if [ -f "$PROFILE_FILE" ]; then
-  ALREADY_IN_SESSION=$(jq --arg c "$CONCEPT" '.session_concepts | index($c)' "$PROFILE_FILE" 2>&1)
-  if [ $? -ne 0 ]; then
-    log_error "$SCRIPT_NAME" "jq failed checking session_concepts for $CONCEPT: $ALREADY_IN_SESSION"
-    ALREADY_IN_SESSION="0"
-  fi
+record_profile_concept "$CONCEPT" IS_FIRST_EVER
 
-  ALREADY_IN_LIFETIME=$(jq --arg c "$CONCEPT" '.concepts_seen | index($c)' "$PROFILE_FILE" 2>&1)
-  if [ $? -ne 0 ]; then
-    log_error "$SCRIPT_NAME" "jq failed checking concepts_seen for $CONCEPT: $ALREADY_IN_LIFETIME"
-    ALREADY_IN_LIFETIME="0"
-  fi
-
-  if [ "$ALREADY_IN_LIFETIME" = "null" ]; then
-    IS_FIRST_EVER="true"
-    if ! update_profile --arg c "$CONCEPT" '
-      .session_concepts += (if (.session_concepts | index($c)) == null then [$c] else [] end) |
-      .concepts_seen += (if (.concepts_seen | index($c)) == null then [$c] else [] end)
-    '; then
-      log_error "$SCRIPT_NAME" "Failed updating profile for first-time concept: $CONCEPT"
-      IS_FIRST_EVER="false"
-    fi
-  elif [ "$ALREADY_IN_SESSION" = "null" ]; then
-    if ! update_profile --arg c "$CONCEPT" '.session_concepts += [$c]'; then
-      log_error "$SCRIPT_NAME" "Failed updating session_concepts for concept: $CONCEPT"
-    fi
-  fi
-fi
+ERROR_IS_FIRST_EVER="false"
+record_profile_concept "$ERROR_CONCEPT" ERROR_IS_FIRST_EVER
 
 NOW=$(date +%s)
 if [ -f "$SESSION_STATE" ]; then
@@ -154,7 +203,7 @@ if [ "$TRIGGER_COUNT" -ge "$SESSION_CAP" ]; then
 fi
 
 ELAPSED=$((NOW - LAST_TRIGGER))
-if [ "$ELAPSED" -lt "$RATE_LIMIT_INTERVAL" ] && [ "$IS_FIRST_EVER" != "true" ]; then
+if [ "$ELAPSED" -lt "$RATE_LIMIT_INTERVAL" ] && [ "$IS_FIRST_EVER" != "true" ] && [ "$ERROR_IS_FIRST_EVER" != "true" ]; then
   printf '{}\n'
   exit 0
 fi
@@ -185,9 +234,11 @@ if [ $? -ne 0 ]; then
   BELT="white"
 fi
 
-SAFE_CMD=$(printf '%s' "$COMMAND" | head -c 80 | tr '"' "'" | tr '\\' '/')
-
-if [ "$IS_FIRST_EVER" = "true" ]; then
+if [ "$ERROR_IS_FIRST_EVER" = "true" ] && [ -n "$ERROR_CONCEPT" ]; then
+  CONTEXT="🥋 CodeSensei micro-lesson trigger: The user just encountered '$ERROR_CONCEPT' for the FIRST TIME while reading command output ($SAFE_CMD). Their belt level is '$BELT'. Provide a brief 2-sentence explanation of how to read this kind of error and why it matters. Adapt language to their belt level. Keep it supportive and practical."
+elif [ -n "$ERROR_CONCEPT" ]; then
+  CONTEXT="🥋 CodeSensei inline insight: An error appeared in the command output ($SAFE_CMD). The user's belt level is '$BELT'. This is a great moment to teach '$ERROR_CONCEPT' -- briefly explain how to read and interpret this type of error in 1-2 sentences, adapted to their belt level. Keep it supportive and practical."
+elif [ "$IS_FIRST_EVER" = "true" ]; then
   CONTEXT="🥋 CodeSensei micro-lesson trigger: The user just encountered '$CONCEPT' for the FIRST TIME (command: $SAFE_CMD). Their belt level is '$BELT'. Provide a brief 2-sentence explanation of what $CONCEPT means and why it matters. Adapt language to their belt level. Keep it concise and non-intrusive."
 else
   CONTEXT="🥋 CodeSensei inline insight: Claude just ran a '$CONCEPT' command ($SAFE_CMD). The user's belt level is '$BELT'. Provide a brief 1-sentence explanation of what this command does, adapted to their belt level. Keep it natural and non-intrusive."

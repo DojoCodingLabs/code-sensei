@@ -358,8 +358,36 @@
           "triggers": ["cache", "redis", "CDN", "load balancer"]
         }
       }
+    },
+    "debugging": {
+      "name": "Debugging",
+      "icon": "🐛",
+      "belt_requirement": "white",
+      "concepts": {
+        "error-reading": {
+          "name": "Error Reading",
+          "xp_to_master": 15,
+          "prerequisites": [],
+          "description": "Understanding error messages and stack traces",
+          "triggers": ["error", "Error:", "Traceback", "ENOENT", "stack trace"]
+        },
+        "debugging-mindset": {
+          "name": "Debugging Mindset",
+          "xp_to_master": 20,
+          "prerequisites": ["error-reading"],
+          "description": "Systematic approach to finding and fixing bugs",
+          "triggers": ["debug", "breakpoint", "console.log", "print("]
+        },
+        "common-errors": {
+          "name": "Common Errors",
+          "xp_to_master": 25,
+          "prerequisites": ["error-reading", "debugging-mindset"],
+          "description": "Recognizing and fixing common programming errors",
+          "triggers": ["TypeError", "ReferenceError", "SyntaxError", "undefined", "null"]
+        }
+      }
     }
   },
-  "total_concepts": 42,
+  "total_concepts": 45,
   "mastery_quiz_threshold": 3
 }
