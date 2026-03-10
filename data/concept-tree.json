@@ -55,6 +55,13 @@
           "prerequisites": ["variables", "data-types"],
           "description": "Structured data with named properties",
           "triggers": ["{}", "key:", "value", "property"]
+        },
+        "python": {
+          "name": "Python",
+          "xp_to_master": 100,
+          "prerequisites": ["variables", "functions"],
+          "description": "Python language syntax and conventions",
+          "triggers": [".py", "def ", "print(", "import ", "pip ", "__name__"]
         }
       }
     },
@@ -125,6 +132,13 @@
           "prerequisites": ["html", "js-basics"],
           "description": "Changing the page with JavaScript",
           "triggers": ["document.", "getElementById", "querySelector", "addEventListener"]
+        },
+        "typescript": {
+          "name": "TypeScript",
+          "xp_to_master": 150,
+          "prerequisites": ["js-basics"],
+          "description": "JavaScript with static types for catching bugs early",
+          "triggers": [".ts", ".tsx", "interface", "type ", ": string", ": number", ": boolean"]
         }
       }
     },
@@ -244,6 +258,13 @@
           "prerequisites": ["routes", "json"],
           "description": "Designing and consuming APIs",
           "triggers": ["GET", "POST", "PUT", "DELETE", "fetch(", "axios"]
+        },
+        "testing": {
+          "name": "Testing",
+          "xp_to_master": 150,
+          "prerequisites": ["functions", "js-basics"],
+          "description": "Automated tests that verify code works correctly",
+          "triggers": ["jest", "vitest", "describe(", "it(", "test(", "expect(", ".test.", ".spec."]
         }
       }
     },
@@ -337,8 +358,36 @@
           "triggers": ["cache", "redis", "CDN", "load balancer"]
         }
       }
+    },
+    "debugging": {
+      "name": "Debugging",
+      "icon": "🐛",
+      "belt_requirement": "white",
+      "concepts": {
+        "error-reading": {
+          "name": "Error Reading",
+          "xp_to_master": 15,
+          "prerequisites": [],
+          "description": "Understanding error messages and stack traces",
+          "triggers": ["error", "Error:", "Traceback", "ENOENT", "stack trace"]
+        },
+        "debugging-mindset": {
+          "name": "Debugging Mindset",
+          "xp_to_master": 20,
+          "prerequisites": ["error-reading"],
+          "description": "Systematic approach to finding and fixing bugs",
+          "triggers": ["debug", "breakpoint", "console.log", "print("]
+        },
+        "common-errors": {
+          "name": "Common Errors",
+          "xp_to_master": 25,
+          "prerequisites": ["error-reading", "debugging-mindset"],
+          "description": "Recognizing and fixing common programming errors",
+          "triggers": ["TypeError", "ReferenceError", "SyntaxError", "undefined", "null"]
+        }
+      }
     }
   },
-  "total_concepts": 42,
+  "total_concepts": 45,
   "mastery_quiz_threshold": 3
 }

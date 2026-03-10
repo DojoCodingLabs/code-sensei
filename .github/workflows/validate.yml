@@ -1,0 +1,132 @@
+name: Validate
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  shellcheck:
+    name: Shellcheck
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install shellcheck
+        run: sudo apt-get update && sudo apt-get install -y shellcheck
+
+      - name: Run shellcheck on scripts
+        run: |
+          shellcheck -S error scripts/*.sh
+
+      - name: Run shellcheck on lib scripts (if any)
+        run: |
+          if compgen -G "scripts/lib/*.sh" > /dev/null; then
+            shellcheck -S error scripts/lib/*.sh
+          else
+            echo "No scripts/lib/*.sh files found, skipping."
+          fi
+
+  json-validation:
+    name: JSON Validation
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Validate data JSON files
+        run: |
+          for f in data/*.json; do
+            echo "Validating $f"
+            jq . "$f" > /dev/null
+          done
+
+      - name: Validate plugin manifest files
+        run: |
+          for f in .claude-plugin/plugin.json .claude-plugin/marketplace.json hooks/hooks.json; do
+            echo "Validating $f"
+            jq . "$f" > /dev/null
+          done
+
+  schema-validation:
+    name: Schema Validation
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Verify concept-tree.json has .categories object
+        run: |
+          result=$(jq '.categories | type' data/concept-tree.json)
+          if [ "$result" != '"object"' ]; then
+            echo "ERROR: concept-tree.json .categories is not an object (got $result)"
+            exit 1
+          fi
+          echo "concept-tree.json .categories is a valid object"
+
+      - name: Verify quiz-bank.json is a non-empty object
+        run: |
+          type=$(jq 'type' data/quiz-bank.json)
+          if [ "$type" != '"object"' ]; then
+            echo "ERROR: quiz-bank.json is not an object (got $type)"
+            exit 1
+          fi
+          keys=$(jq 'keys | length' data/quiz-bank.json)
+          if [ "$keys" -eq 0 ]; then
+            echo "ERROR: quiz-bank.json is an empty object"
+            exit 1
+          fi
+          echo "quiz-bank.json is a valid non-empty object with $keys top-level keys"
+
+      - name: Verify plugin.json has required fields
+        run: |
+          name=$(jq -r '.name // empty' .claude-plugin/plugin.json)
+          version=$(jq -r '.version // empty' .claude-plugin/plugin.json)
+          if [ -z "$name" ]; then
+            echo "ERROR: plugin.json is missing required field: name"
+            exit 1
+          fi
+          if [ -z "$version" ]; then
+            echo "ERROR: plugin.json is missing required field: version"
+            exit 1
+          fi
+          echo "plugin.json has name='$name' and version='$version'"
+
+  concept-coverage:
+    name: Concept Coverage Check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Compare quiz-bank keys vs concept-tree concept keys
+        run: |
+          echo "--- Quiz bank concept IDs ---"
+          quiz_keys=$(jq -r '.quizzes | keys[]' data/quiz-bank.json | sort)
+          echo "$quiz_keys"
+
+          echo ""
+          echo "--- Concept tree concept IDs ---"
+          concept_keys=$(jq -r '.categories | to_entries[] | .value.concepts | keys[]' data/concept-tree.json | sort)
+          echo "$concept_keys"
+
+          echo ""
+          echo "--- Concepts in quiz-bank but not in concept-tree ---"
+          only_in_quiz=$(comm -23 <(echo "$quiz_keys") <(echo "$concept_keys"))
+          if [ -n "$only_in_quiz" ]; then
+            echo "WARNING: The following quiz-bank keys have no matching concept in concept-tree:"
+            echo "$only_in_quiz"
+          else
+            echo "None"
+          fi
+
+          echo ""
+          echo "--- Concepts in concept-tree but not in quiz-bank ---"
+          only_in_tree=$(comm -13 <(echo "$quiz_keys") <(echo "$concept_keys"))
+          if [ -n "$only_in_tree" ]; then
+            echo "WARNING: The following concept-tree concepts have no quiz-bank coverage:"
+            echo "$only_in_tree"
+          else
+            echo "None"
+          fi
+
+          echo ""
+          echo "Concept coverage check complete (warnings do not fail CI)."
