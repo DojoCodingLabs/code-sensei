@@ -182,12 +182,12 @@ code-sensei/
 
 CodeSensei covers **42 concepts** across **9 categories**:
 
-- **🧱 Fundamentals** — Variables, functions, loops, conditionals
+- **🧱 Fundamentals** — Variables, functions, loops, conditionals, Python
 - **🌐 Web Basics** — HTML, CSS, how browsers work
-- **⚡ JavaScript** — Core JS, async/await, imports, JSON
+- **⚡ JavaScript** — Core JS, async/await, imports, JSON, TypeScript
 - **💻 Terminal & Tools** — Command line, npm, git, env variables
 - **🎨 Frontend** — React, components, props, state, routing
-- **⚙️ Backend** — Servers, routes, middleware, REST APIs, auth
+- **⚙️ Backend** — Servers, routes, middleware, REST APIs, auth, testing
 - **🗄️ Databases** — SQL, schemas, ORMs, relationships
 - **🚀 Deployment** — Hosting, Docker, CI/CD
 - **🏗️ Architecture** — Design patterns, scalability, client-server
