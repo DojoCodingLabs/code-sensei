@@ -38,6 +38,9 @@ else
   check_jq() { command -v jq &>/dev/null; }
 fi
 
+# shellcheck source=scripts/lib/date-compat.sh
+source "$PLUGIN_ROOT/scripts/lib/date-compat.sh"
+
 # Default output if we can't determine anything
 DEFAULT_OUTPUT='{"mode":"dynamic","concept":null,"reason":"No profile data available","static_question":null,"belt":"white","quiz_format":"multiple_choice"}'
 
@@ -89,8 +92,8 @@ if [ $? -ne 0 ]; then
   CORRECT_QUIZZES=0
 fi
 
-TODAY=$(date -u +%Y-%m-%d)
-NOW_EPOCH=$(date +%s)
+TODAY=$(date_today)
+NOW_EPOCH=$(date_to_epoch "$TODAY")
 
 # Determine quiz format based on belt level
 # Orange Belt+ gets a mix of formats; lower belts get multiple choice
@@ -149,10 +152,10 @@ if [ "$QUIZ_HISTORY" != "[]" ]; then
       continue
     fi
 
-    # Calculate days since last wrong answer (handles both GNU and BSD date)
+    # Calculate days since last wrong answer using cross-platform helpers
     LAST_WRONG_DATE=$(printf '%s' "$LAST_WRONG" | cut -d'T' -f1)
-    LAST_EPOCH=$(date -j -f "%Y-%m-%d" "$LAST_WRONG_DATE" +%s 2>/dev/null || date -d "$LAST_WRONG_DATE" +%s 2>/dev/null)
-    if [ -n "$LAST_EPOCH" ]; then
+    LAST_EPOCH=$(date_to_epoch "$LAST_WRONG_DATE")
+    if [ -n "$LAST_EPOCH" ] && [ "$LAST_EPOCH" != "0" ]; then
       DAYS_SINCE=$(( (NOW_EPOCH - LAST_EPOCH) / 86400 ))
     else
       log_error "$SCRIPT_NAME" "Could not parse date '$LAST_WRONG_DATE' for spaced repetition; defaulting days_since=999"

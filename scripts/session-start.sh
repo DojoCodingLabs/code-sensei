@@ -7,6 +7,8 @@ SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 
 # shellcheck source=lib/profile-io.sh
 source "${SCRIPT_DIR}/lib/profile-io.sh"
+# shellcheck source=lib/date-compat.sh
+source "${SCRIPT_DIR}/lib/date-compat.sh"
 
 LIB_DIR="${SCRIPT_DIR}/lib"
 if [ -f "${LIB_DIR}/error-handling.sh" ]; then
@@ -14,12 +16,12 @@ if [ -f "${LIB_DIR}/error-handling.sh" ]; then
   source "${LIB_DIR}/error-handling.sh"
 else
   LOG_FILE="${PROFILE_DIR}/error.log"
-  log_error() { printf '[%s] [%s] %s\n' "$(date -u '+%Y-%m-%dT%H:%M:%SZ' 2>/dev/null || date '+%Y-%m-%d')" "${1:-unknown}" "$2" >> "$LOG_FILE" 2>/dev/null; }
+  log_error() { printf '[%s] [%s] %s\n' "$(date_now_iso 2>/dev/null || date -u '+%Y-%m-%dT%H:%M:%SZ' 2>/dev/null || date '+%Y-%m-%d')" "${1:-unknown}" "$2" >> "$LOG_FILE" 2>/dev/null; }
   check_jq() { command -v jq &>/dev/null; }
 fi
 
 SESSION_LOG="${PROFILE_DIR}/sessions.log"
-TODAY=$(date -u +%Y-%m-%d)
+TODAY=$(date_today)
 
 ensure_profile_dir
 if [ ! -d "$PROFILE_DIR" ]; then
@@ -28,7 +30,7 @@ if [ ! -d "$PROFILE_DIR" ]; then
 fi
 
 if [ ! -f "$PROFILE_FILE" ]; then
-  CREATED_AT=$(date -u +%Y-%m-%dT%H:%M:%SZ)
+  CREATED_AT=$(date_now_iso)
   if ! cat <<PROFILE | write_profile
 {
   "version": "1.0.0",
@@ -113,7 +115,7 @@ fi
 if [ "$LAST_SESSION" = "$TODAY" ]; then
   NEW_STREAK=$CURRENT_STREAK
 elif [ -n "$LAST_SESSION" ]; then
-  YESTERDAY=$(date -u -d "yesterday" +%Y-%m-%d 2>/dev/null || date -u -v-1d +%Y-%m-%d 2>/dev/null)
+  YESTERDAY=$(date_yesterday)
   if [ -z "$YESTERDAY" ]; then
     log_error "$SCRIPT_NAME" "Failed to compute yesterday's date; resetting streak to 1"
     YESTERDAY=""
