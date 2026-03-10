@@ -10,6 +10,9 @@ SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 source "${SCRIPT_DIR}/lib/profile-io.sh"
 
 CHANGES_LOG="${PROFILE_DIR}/session-changes.jsonl"
+SESSION_STATE="${PROFILE_DIR}/session-state.json"
+RATE_LIMIT_INTERVAL=30
+SESSION_CAP=12
 
 LIB_DIR="${SCRIPT_DIR}/lib"
 if [ -f "${LIB_DIR}/error-handling.sh" ]; then
@@ -111,6 +114,51 @@ if [ -f "$PROFILE_FILE" ] && [ "$TECH" != "other" ]; then
       log_error "$SCRIPT_NAME" "Failed updating session_concepts for technology: $TECH"
     fi
   fi
+fi
+
+if [ "$TECH" = "other" ]; then
+  printf '{}\n'
+  exit 0
+fi
+
+NOW=$(date +%s)
+if [ -f "$SESSION_STATE" ]; then
+  LAST_TRIGGER=$(jq -r '.last_trigger_time // 0' "$SESSION_STATE" 2>/dev/null || echo "0")
+  TRIGGER_COUNT=$(jq -r '.trigger_count // 0' "$SESSION_STATE" 2>/dev/null || echo "0")
+else
+  LAST_TRIGGER=0
+  TRIGGER_COUNT=0
+fi
+
+if [ "$TRIGGER_COUNT" -ge "$SESSION_CAP" ]; then
+  printf '{}\n'
+  exit 0
+fi
+
+ELAPSED=$((NOW - LAST_TRIGGER))
+if [ "$ELAPSED" -lt "$RATE_LIMIT_INTERVAL" ] && [ "$IS_FIRST_EVER" != "true" ]; then
+  printf '{}\n'
+  exit 0
+fi
+
+NEW_COUNT=$((TRIGGER_COUNT + 1))
+SESSION_START_VAL=""
+if [ -f "$SESSION_STATE" ]; then
+  SESSION_START_VAL=$(jq -r '.session_start // ""' "$SESSION_STATE" 2>/dev/null || echo "")
+fi
+if [ -z "$SESSION_START_VAL" ]; then
+  SESSION_START_VAL="$TIMESTAMP"
+fi
+
+if ! jq -n \
+  --argjson last "$NOW" \
+  --argjson count "$NEW_COUNT" \
+  --arg start "$SESSION_START_VAL" \
+  '{"last_trigger_time": $last, "trigger_count": $count, "session_start": $start}' > "$SESSION_STATE"
+then
+  log_error "$SCRIPT_NAME" "Failed to update session state: $SESSION_STATE"
+  printf '{}\n'
+  exit 0
 fi
 
 BELT=$(jq -r '.belt // "white"' "$PROFILE_FILE" 2>&1)

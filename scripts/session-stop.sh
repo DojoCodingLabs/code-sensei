@@ -19,6 +19,7 @@ else
 fi
 
 SESSION_LOG="${PROFILE_DIR}/sessions.log"
+SESSION_STATE="${PROFILE_DIR}/session-state.json"
 TODAY=$(date -u +%Y-%m-%d)
 
 if [ ! -f "$PROFILE_FILE" ]; then
@@ -61,5 +62,8 @@ fi
 if [ "$SESSION_CONCEPTS" -gt 0 ]; then
   echo "You encountered $SESSION_CONCEPTS new concepts this session! Use /code-sensei:recap next time for a full summary."
 fi
+
+rm -f "$SESSION_STATE"
+rm -f "$PROFILE_DIR/.jq-warned"
 
 exit 0

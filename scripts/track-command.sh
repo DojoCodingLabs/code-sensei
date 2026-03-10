@@ -10,6 +10,10 @@ SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 source "${SCRIPT_DIR}/lib/profile-io.sh"
 
 COMMANDS_LOG="${PROFILE_DIR}/session-commands.jsonl"
+SESSION_STATE="${PROFILE_DIR}/session-state.json"
+RATE_LIMIT_INTERVAL=30
+SESSION_CAP=12
+TRIVIAL_COMMANDS="cd ls pwd clear echo cat which man help exit history alias type file wc whoami hostname uname true false"
 
 LIB_DIR="${SCRIPT_DIR}/lib"
 if [ -f "${LIB_DIR}/error-handling.sh" ]; then
@@ -48,6 +52,26 @@ if [ $? -ne 0 ]; then
 fi
 
 TIMESTAMP=$(date -u +%Y-%m-%dT%H:%M:%SZ)
+BASE_CMD=$(printf '%s' "$COMMAND" | sed 's/^[[:space:]]*//' | awk '{print $1}' | sed 's|.*/||')
+
+IS_TRIVIAL="false"
+for trivial in $TRIVIAL_COMMANDS; do
+  if [ "$BASE_CMD" = "$trivial" ]; then
+    IS_TRIVIAL="true"
+    break
+  fi
+done
+
+if [ "$IS_TRIVIAL" = "true" ]; then
+  SAFE_LOG_CMD=$(printf '%s' "$COMMAND" | head -c 200 | sed 's/\\/\\\\/g; s/"/\\"/g')
+  if ! printf '{"timestamp":"%s","command":"%s","concept":"","skipped":"trivial"}\n' \
+    "$TIMESTAMP" "$SAFE_LOG_CMD" >> "$COMMANDS_LOG" 2>&1
+  then
+    log_error "$SCRIPT_NAME" "Failed to write trivial command log: $COMMANDS_LOG"
+  fi
+  printf '{}\n'
+  exit 0
+fi
 
 CONCEPT=""
 case "$COMMAND" in
@@ -80,8 +104,13 @@ then
   log_error "$SCRIPT_NAME" "Failed to write to commands log: $COMMANDS_LOG"
 fi
 
+if [ -z "$CONCEPT" ]; then
+  printf '{}\n'
+  exit 0
+fi
+
 IS_FIRST_EVER="false"
-if [ -n "$CONCEPT" ] && [ -f "$PROFILE_FILE" ]; then
+if [ -f "$PROFILE_FILE" ]; then
   ALREADY_IN_SESSION=$(jq --arg c "$CONCEPT" '.session_concepts | index($c)' "$PROFILE_FILE" 2>&1)
   if [ $? -ne 0 ]; then
     log_error "$SCRIPT_NAME" "jq failed checking session_concepts for $CONCEPT: $ALREADY_IN_SESSION"
@@ -110,6 +139,46 @@ if [ -n "$CONCEPT" ] && [ -f "$PROFILE_FILE" ]; then
   fi
 fi
 
+NOW=$(date +%s)
+if [ -f "$SESSION_STATE" ]; then
+  LAST_TRIGGER=$(jq -r '.last_trigger_time // 0' "$SESSION_STATE" 2>/dev/null || echo "0")
+  TRIGGER_COUNT=$(jq -r '.trigger_count // 0' "$SESSION_STATE" 2>/dev/null || echo "0")
+else
+  LAST_TRIGGER=0
+  TRIGGER_COUNT=0
+fi
+
+if [ "$TRIGGER_COUNT" -ge "$SESSION_CAP" ]; then
+  printf '{}\n'
+  exit 0
+fi
+
+ELAPSED=$((NOW - LAST_TRIGGER))
+if [ "$ELAPSED" -lt "$RATE_LIMIT_INTERVAL" ] && [ "$IS_FIRST_EVER" != "true" ]; then
+  printf '{}\n'
+  exit 0
+fi
+
+NEW_COUNT=$((TRIGGER_COUNT + 1))
+SESSION_START_VAL=""
+if [ -f "$SESSION_STATE" ]; then
+  SESSION_START_VAL=$(jq -r '.session_start // ""' "$SESSION_STATE" 2>/dev/null || echo "")
+fi
+if [ -z "$SESSION_START_VAL" ]; then
+  SESSION_START_VAL="$TIMESTAMP"
+fi
+
+if ! jq -n \
+  --argjson last "$NOW" \
+  --argjson count "$NEW_COUNT" \
+  --arg start "$SESSION_START_VAL" \
+  '{"last_trigger_time": $last, "trigger_count": $count, "session_start": $start}' > "$SESSION_STATE"
+then
+  log_error "$SCRIPT_NAME" "Failed to update session state: $SESSION_STATE"
+  printf '{}\n'
+  exit 0
+fi
+
 BELT=$(jq -r '.belt // "white"' "$PROFILE_FILE" 2>&1)
 if [ $? -ne 0 ]; then
   log_error "$SCRIPT_NAME" "jq failed reading belt: $BELT"
@@ -118,12 +187,10 @@ fi
 
 SAFE_CMD=$(printf '%s' "$COMMAND" | head -c 80 | tr '"' "'" | tr '\\' '/')
 
-if [ "$IS_FIRST_EVER" = "true" ] && [ -n "$CONCEPT" ]; then
+if [ "$IS_FIRST_EVER" = "true" ]; then
   CONTEXT="🥋 CodeSensei micro-lesson trigger: The user just encountered '$CONCEPT' for the FIRST TIME (command: $SAFE_CMD). Their belt level is '$BELT'. Provide a brief 2-sentence explanation of what $CONCEPT means and why it matters. Adapt language to their belt level. Keep it concise and non-intrusive."
-elif [ -n "$CONCEPT" ]; then
-  CONTEXT="🥋 CodeSensei inline insight: Claude just ran a '$CONCEPT' command ($SAFE_CMD). The user's belt level is '$BELT'. Provide a brief 1-sentence explanation of what this command does, adapted to their belt level. Keep it natural and non-intrusive."
 else
-  CONTEXT="🥋 CodeSensei inline insight: Claude just ran a shell command ($SAFE_CMD). The user's belt level is '$BELT'. If this command is educational, briefly explain what it does in 1 sentence. If trivial, skip the explanation."
+  CONTEXT="🥋 CodeSensei inline insight: Claude just ran a '$CONCEPT' command ($SAFE_CMD). The user's belt level is '$BELT'. Provide a brief 1-sentence explanation of what this command does, adapted to their belt level. Keep it natural and non-intrusive."
 fi
 
 ESCAPED_CONTEXT=$(json_escape "$CONTEXT")
