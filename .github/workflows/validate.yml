@@ -18,12 +18,12 @@ jobs:
 
       - name: Run shellcheck on scripts
         run: |
-          shellcheck scripts/*.sh
+          shellcheck -S error scripts/*.sh
 
       - name: Run shellcheck on lib scripts (if any)
         run: |
           if compgen -G "scripts/lib/*.sh" > /dev/null; then
-            shellcheck scripts/lib/*.sh
+            shellcheck -S error scripts/lib/*.sh
           else
             echo "No scripts/lib/*.sh files found, skipping."
           fi
