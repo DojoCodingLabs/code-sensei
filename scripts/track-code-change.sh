@@ -167,11 +167,29 @@ if [ $? -ne 0 ]; then
   BELT="white"
 fi
 
+# --- Pending lessons queue (durable, per-lesson file to avoid append races) --- (DOJ-2436)
+PENDING_DIR="${PROFILE_DIR}/pending-lessons"
+mkdir -p "$PENDING_DIR"
+
 if [ "$IS_FIRST_EVER" = "true" ]; then
-  CONTEXT="🥋 CodeSensei micro-lesson trigger: The user just encountered '$TECH' for the FIRST TIME (file: $FILE_PATH). Their belt level is '$BELT'. Provide a brief 2-sentence explanation of what $TECH is and why it matters for their project. Adapt language to their belt level. Keep it concise and non-intrusive -- weave it naturally into your response, don't stop everything for a lecture."
+  LESSON_TYPE="micro-lesson"
 else
-  CONTEXT="🥋 CodeSensei inline insight: Claude just used '$TOOL_NAME' on '$FILE_PATH' ($TECH). The user's belt level is '$BELT'. Provide a brief 1-2 sentence explanation of what this change does and why, adapted to their belt level. Keep it natural and non-intrusive -- weave it into your response as a quick teaching moment."
+  LESSON_TYPE="inline-insight"
 fi
+
+# Write one JSON file per lesson (atomic, no race conditions)
+LESSON_ID="${TIMESTAMP}-$(printf '%05d' $$)"
+LESSON_FILE="${PENDING_DIR}/${LESSON_ID}.json"
+SAFE_FILE_PATH_LESSON=$(printf '%s' "$FILE_PATH" | sed 's/\\/\\\\/g; s/"/\\"/g')
+SAFE_TOOL_NAME_LESSON=$(printf '%s' "$TOOL_NAME" | sed 's/\\/\\\\/g; s/"/\\"/g')
+if ! printf '{"timestamp":"%s","type":"%s","tech":"%s","file":"%s","tool":"%s","belt":"%s","firstEncounter":%s}\n' \
+  "$TIMESTAMP" "$LESSON_TYPE" "$TECH" "$SAFE_FILE_PATH_LESSON" "$SAFE_TOOL_NAME_LESSON" "$BELT" "$IS_FIRST_EVER" > "$LESSON_FILE"
+then
+  log_error "$SCRIPT_NAME" "Failed to write pending lesson: $LESSON_FILE"
+fi
+
+# --- Delegation hint: delegate teaching to sensei subagent --- (DOJ-2436)
+CONTEXT="CodeSensei: New teaching moment detected ($TECH, $FILE_PATH). If the user is not in the middle of a complex task, use the Task tool to invoke the 'sensei' agent. Pass it the latest pending lesson from ~/.code-sensei/pending-lessons/."
 
 ESCAPED_CONTEXT=$(json_escape "$CONTEXT")
 printf '{"hookSpecificOutput":{"hookEventName":"PostToolUse","additionalContext":%s}}\n' "$ESCAPED_CONTEXT"

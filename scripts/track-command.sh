@@ -234,15 +234,36 @@ if [ $? -ne 0 ]; then
   BELT="white"
 fi
 
-if [ "$ERROR_IS_FIRST_EVER" = "true" ] && [ -n "$ERROR_CONCEPT" ]; then
-  CONTEXT="🥋 CodeSensei micro-lesson trigger: The user just encountered '$ERROR_CONCEPT' for the FIRST TIME while reading command output ($SAFE_CMD). Their belt level is '$BELT'. Provide a brief 2-sentence explanation of how to read this kind of error and why it matters. Adapt language to their belt level. Keep it supportive and practical."
+# --- Pending lessons queue (durable, per-lesson file to avoid append races) --- (DOJ-2436)
+PENDING_DIR="${PROFILE_DIR}/pending-lessons"
+mkdir -p "$PENDING_DIR"
+
+if [ "$IS_FIRST_EVER" = "true" ] && [ -n "$CONCEPT" ]; then
+  LESSON_TYPE="micro-lesson"
+elif [ "$ERROR_IS_FIRST_EVER" = "true" ] && [ -n "$ERROR_CONCEPT" ]; then
+  LESSON_TYPE="micro-lesson"
+elif [ -n "$CONCEPT" ]; then
+  LESSON_TYPE="inline-insight"
 elif [ -n "$ERROR_CONCEPT" ]; then
-  CONTEXT="🥋 CodeSensei inline insight: An error appeared in the command output ($SAFE_CMD). The user's belt level is '$BELT'. This is a great moment to teach '$ERROR_CONCEPT' -- briefly explain how to read and interpret this type of error in 1-2 sentences, adapted to their belt level. Keep it supportive and practical."
-elif [ "$IS_FIRST_EVER" = "true" ]; then
-  CONTEXT="🥋 CodeSensei micro-lesson trigger: The user just encountered '$CONCEPT' for the FIRST TIME (command: $SAFE_CMD). Their belt level is '$BELT'. Provide a brief 2-sentence explanation of what $CONCEPT means and why it matters. Adapt language to their belt level. Keep it concise and non-intrusive."
+  LESSON_TYPE="inline-insight"
 else
-  CONTEXT="🥋 CodeSensei inline insight: Claude just ran a '$CONCEPT' command ($SAFE_CMD). The user's belt level is '$BELT'. Provide a brief 1-sentence explanation of what this command does, adapted to their belt level. Keep it natural and non-intrusive."
+  LESSON_TYPE="command-hint"
 fi
+
+# Write one JSON file per lesson (atomic, no race conditions)
+LESSON_ID="${TIMESTAMP}-$(printf '%05d' $$)"
+LESSON_FILE="${PENDING_DIR}/${LESSON_ID}.json"
+DISPLAY_TOPIC="${ERROR_CONCEPT:-${CONCEPT:-shell command}}"
+SAFE_DISPLAY_TOPIC=$(printf '%s' "$DISPLAY_TOPIC" | sed 's/\\/\\\\/g; s/"/\\"/g')
+if ! printf '{"timestamp":"%s","type":"%s","concept":"%s","command":"%s","belt":"%s","firstEncounter":%s}\n' \
+  "$TIMESTAMP" "$LESSON_TYPE" "$SAFE_DISPLAY_TOPIC" "$SAFE_CMD" "$BELT" \
+  "$([ "$IS_FIRST_EVER" = "true" ] || [ "$ERROR_IS_FIRST_EVER" = "true" ] && echo "true" || echo "false")" > "$LESSON_FILE"
+then
+  log_error "$SCRIPT_NAME" "Failed to write pending lesson: $LESSON_FILE"
+fi
+
+# --- Delegation hint: delegate teaching to sensei subagent --- (DOJ-2436)
+CONTEXT="CodeSensei: New teaching moment detected ($DISPLAY_TOPIC, $SAFE_CMD). If the user is not in the middle of a complex task, use the Task tool to invoke the 'sensei' agent. Pass it the latest pending lesson from ~/.code-sensei/pending-lessons/."
 
 ESCAPED_CONTEXT=$(json_escape "$CONTEXT")
 printf '{"hookSpecificOutput":{"hookEventName":"PostToolUse","additionalContext":%s}}\n' "$ESCAPED_CONTEXT"
