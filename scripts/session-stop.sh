@@ -80,8 +80,14 @@ if [ -d "$PENDING_DIR" ] && [ "$(ls -A "$PENDING_DIR" 2>/dev/null)" ]; then
   # Clear the pending queue
   rm -f "$PENDING_DIR"/*.json
 
-  # Cap archive size: keep only last 30 days of archives (~1MB)
-  find "$ARCHIVE_DIR" -name "*.jsonl" -type f | sort | head -n -30 | xargs -r rm -f
+  # Cap archive size: keep only the latest 30 daily archives
+  ARCHIVE_COUNT=$(find "$ARCHIVE_DIR" -name "*.jsonl" -type f | wc -l | tr -d ' ')
+  if [ "$ARCHIVE_COUNT" -gt 30 ]; then
+    REMOVE_COUNT=$((ARCHIVE_COUNT - 30))
+    find "$ARCHIVE_DIR" -name "*.jsonl" -type f | sort | head -n "$REMOVE_COUNT" | while IFS= read -r archive_file; do
+      [ -n "$archive_file" ] && rm -f "$archive_file"
+    done
+  fi
 fi
 
 rm -f "$SESSION_STATE"

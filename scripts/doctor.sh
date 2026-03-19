@@ -83,12 +83,12 @@ fi
 
 commands_count=0
 if [ -d "$COMMANDS_DIR" ]; then
-  commands_count=$(find "$COMMANDS_DIR" -maxdepth 1 -name '*.md' | wc -l | tr -d ' ')
+  commands_count=$(find "$COMMANDS_DIR" -type f -name '*.md' 2>/dev/null | wc -l | tr -d ' ')
 fi
 
 pending_count=0
 if [ -d "$PENDING_DIR" ]; then
-  pending_count=$(find "$PENDING_DIR" -maxdepth 1 -name '*.json' | wc -l | tr -d ' ')
+  pending_count=$(find "$PENDING_DIR" -type f -name '*.json' 2>/dev/null | wc -l | tr -d ' ')
 fi
 
 profile_belt="unknown"
