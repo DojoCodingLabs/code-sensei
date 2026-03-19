@@ -26,91 +26,73 @@ To create an export file first, run:
   /code-sensei:export
 ```
 
-## Step 1: Read and Validate the Import File
+## Step 1: Validate and preview using the import script
 
-Read the file at the path the user provided.
+Run:
 
-If the file does not exist or cannot be read, show:
-```
-❌ Import failed: File not found at [path]
-
-Check the path and try again.
+```bash
+bash ${CLAUDE_PLUGIN_ROOT}/scripts/import-profile.sh [path provided by user]
 ```
 
-Verify the file is valid JSON in one of these formats:
-- Preferred export format: must have a `schema_version` field and a `profile` field containing the profile data
-- Legacy/raw export format: may be the raw profile JSON itself, as long as it has at least a `belt` field
+Interpret the JSON response:
+- `missing_arg` → show the usage block above
+- `jq_missing` → tell the user jq is required and how to install it
+- `file_not_found` → tell the user the file was not found
+- `invalid` → tell the user the export file is not a valid CodeSensei export
+- `preview` → continue to Step 2
 
-If validation fails, show:
-```
-❌ Import failed: Invalid export file
+## Step 2: Show the import preview
 
-The file at [path] does not appear to be a valid CodeSensei export.
-Expected either a wrapped export (`schema_version` + `profile`) or a raw profile JSON with `belt`.
-
-To create a valid export, run: /code-sensei:export
-```
-
-## Step 2: Preview the Import
-
-Show the user what will be imported and ask for confirmation:
+For `status = preview`, show:
 
 ```
 🥋 CodeSensei — Import Preview
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 Import file: [path]
-Exported at: [exported_at from metadata, or "unknown" for legacy/raw exports]
+Exported at: [exported_at]
+Schema version: [schema_version]
+Plugin version: [plugin_version]
 
 Profile to import:
-  [Belt Emoji] Belt:             [belt]
-  ⚡ XP:                [xp]
-  🧠 Concepts mastered: [count of concepts_mastered]
-  📊 Quizzes taken:     [quizzes.total]
-  🔥 Streak:            [streak.current] days
+  [Belt Emoji] Belt:             [target_summary.belt]
+  ⚡ XP:                [target_summary.xp]
+  🧠 Concepts mastered: [target_summary.concepts_mastered]
+  📊 Quizzes taken:     [target_summary.quizzes_total]
+  🔥 Streak:            [target_summary.streak_current] days
+
+Current profile:
+  [If current_summary is null: "No existing profile found"]
+  [Else show the same five lines for current_summary]
 
 ⚠️  WARNING: This will overwrite your current profile.
-    A backup will be saved to ~/.code-sensei/profile.json.backup
+    A backup will be saved to [backup_path]
 
 Type "yes" to confirm the import, or anything else to cancel.
 ```
 
-## Step 3: Read Current Profile for Comparison
+## Step 3: Wait for confirmation
 
-Before proceeding, read the current profile at `~/.code-sensei/profile.json` (if it exists) and show a brief comparison in the preview if relevant.
+If the user does not clearly confirm, show:
 
-## Step 4: Confirm and Apply
+```
+↩️ Import cancelled. Your current profile was not changed.
+```
 
-Wait for the user's response.
+## Step 4: Apply the import
 
-**If the user confirms (types "yes" or equivalent affirmation):**
+If the user confirms, run:
 
-1. Back up the current profile:
-   - Use the Bash tool to run:
-     ```bash
-     cp ~/.code-sensei/profile.json ~/.code-sensei/profile.json.backup 2>/dev/null && echo "backed_up" || echo "no_existing_profile"
-     ```
+```bash
+bash ${CLAUDE_PLUGIN_ROOT}/scripts/import-profile.sh --apply [path provided by user]
+```
 
-2. Create the target directory if needed:
-   - Use the Bash tool to run:
-     ```bash
-     mkdir -p ~/.code-sensei
-     ```
+Interpret the response:
+- `backup_failed` → say the current profile could not be backed up and nothing changed
+- `write_failed` → say the import could not be written
+- `imported` → show success
 
-3. Extract and write the profile data:
-   - If the import file has a `profile` field, write `import_data.profile` to `~/.code-sensei/profile.json`
-   - If it is a legacy/raw export, write the full file contents as-is to `~/.code-sensei/profile.json`
-   - Use `jq` if available for clean extraction:
-     ```bash
-     if jq -e '.profile' [import file path] > /dev/null 2>&1; then
-       jq '.profile' [import file path] > ~/.code-sensei/profile.json
-     else
-       cp [import file path] ~/.code-sensei/profile.json
-     fi
-     ```
-   - If jq is not available, instruct the user to manually copy the `profile` object from the import file, or the full file for legacy/raw exports
-
-4. Show the success message:
+## Step 5: Success format
 
 ```
 🥋 CodeSensei — Import Complete
@@ -118,29 +100,20 @@ Wait for the user's response.
 
 ✅ Profile imported successfully!
 
-  [Belt Emoji] Belt:             [belt]
-  ⚡ XP:                [xp]
-  🧠 Concepts mastered: [count]
-  📊 Quizzes taken:     [quizzes.total]
+  [Belt Emoji] Belt:             [summary.belt]
+  ⚡ XP:                [summary.xp]
+  🧠 Concepts mastered: [summary.concepts_mastered]
+  📊 Quizzes taken:     [summary.quizzes_total]
+  🔥 Streak:            [summary.streak_current] days
 
-Backup saved to: ~/.code-sensei/profile.json.backup
+Backup saved to: [backup_path]
 
 Your learning progress has been restored.
 Use /code-sensei:progress to view your full dashboard.
-
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-🥋 Powered by Dojo Coding | dojocoding.io
-```
-
-**If the user cancels:**
-
-```
-↩️  Import cancelled. Your current profile was not changed.
 ```
 
 ## Important Notes
 
-- Always back up before overwriting — never skip the backup step
-- The preferred import path reads the `profile` field from wrapped exports; legacy/raw exports can be copied directly
-- If jq is unavailable, warn the user and provide manual instructions
-- After a successful import, do NOT reset session_concepts — preserve it as-is from the imported profile
+- Always use the import script for validation and apply steps.
+- The script supports wrapped exports (`schema_version` + `profile`) and legacy/raw profile JSON exports.
+- jq is required for imports. If it is missing, direct the user to `/code-sensei:doctor` after installation to verify setup.
