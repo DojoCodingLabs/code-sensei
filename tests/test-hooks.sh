@@ -30,6 +30,7 @@ trap cleanup EXIT
 
 # --- Setup: create a minimal profile ---
 setup_profile() {
+  rm -rf "$TEST_HOME/.code-sensei"
   mkdir -p "$TEST_HOME/.code-sensei"
   cat > "$TEST_HOME/.code-sensei/profile.json" <<'PROFILE'
 {
@@ -37,7 +38,8 @@ setup_profile() {
   "xp": 100,
   "session_concepts": [],
   "concepts_seen": ["html"],
-  "streak": {"current": 3}
+  "streak": {"current": 3},
+  "quizzes": {"total": 0, "correct": 0, "current_streak": 0, "longest_streak": 0}
 }
 PROFILE
 }

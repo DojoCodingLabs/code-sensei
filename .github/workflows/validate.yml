@@ -91,6 +91,33 @@ jobs:
           fi
           echo "plugin.json has name='$name' and version='$version'"
 
+      - name: Verify all concept prerequisites reference valid concept IDs
+        run: |
+          concept_keys=$(jq -r '.categories | to_entries[] | .value.concepts | keys[]' data/concept-tree.json | sort)
+          prereq_keys=$(jq -r '.categories | to_entries[] | .value.concepts | to_entries[] | .value.prerequisites[]?' data/concept-tree.json | sort -u)
+          missing=$(comm -23 <(echo "$prereq_keys") <(echo "$concept_keys"))
+          if [ -n "$missing" ]; then
+            echo "ERROR: The following prerequisite IDs do not exist in concept-tree.json:"
+            echo "$missing"
+            exit 1
+          fi
+          echo "All prerequisite IDs are valid concept keys."
+
+  hook-tests:
+    name: Hook Regression Tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install jq
+        run: sudo apt-get update && sudo apt-get install -y jq
+
+      - name: Run hook regression tests
+        run: bash tests/test-hooks.sh
+
+      - name: Run profile tools regression tests
+        run: bash tests/test-profile-tools.sh
+
   concept-coverage:
     name: Concept Coverage Check
     runs-on: ubuntu-latest

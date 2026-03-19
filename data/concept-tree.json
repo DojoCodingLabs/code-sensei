@@ -101,14 +101,14 @@
         "js-basics": {
           "name": "JavaScript Basics",
           "xp_to_master": 100,
-          "prerequisites": ["fundamentals.variables", "fundamentals.functions"],
+          "prerequisites": ["variables", "functions"],
           "description": "JS syntax and core features",
           "triggers": [".js", ".mjs", "console.log"]
         },
         "async-await": {
           "name": "Async/Await",
           "xp_to_master": 150,
-          "prerequisites": ["js-basics", "fundamentals.functions"],
+          "prerequisites": ["js-basics", "functions"],
           "description": "Handling asynchronous operations",
           "triggers": ["async", "await", "Promise", ".then("]
         },
@@ -122,7 +122,7 @@
         "json": {
           "name": "JSON",
           "xp_to_master": 50,
-          "prerequisites": ["fundamentals.objects"],
+          "prerequisites": ["objects"],
           "description": "Data format for communication",
           "triggers": [".json", "JSON.parse", "JSON.stringify"]
         },
@@ -276,7 +276,7 @@
         "sql-basics": {
           "name": "SQL Basics",
           "xp_to_master": 150,
-          "prerequisites": ["fundamentals.objects"],
+          "prerequisites": ["objects"],
           "description": "Querying and managing data",
           "triggers": ["SELECT", "INSERT", "UPDATE", "DELETE", ".sql"]
         },
