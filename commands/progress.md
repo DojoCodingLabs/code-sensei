@@ -126,13 +126,15 @@ Let's build something! 🚀
 ```json
 {
   "version": "1.0.0",
+  "plugin": "code-sensei",
+  "brand": "Dojo Coding",
   "created_at": "[ISO timestamp]",
   "belt": "white",
   "xp": 0,
   "streak": {
-    "current": 0,
-    "longest": 0,
-    "last_session_date": null
+    "current": 1,
+    "longest": 1,
+    "last_session_date": "[YYYY-MM-DD]"
   },
   "quizzes": {
     "total": 0,
@@ -142,17 +144,27 @@ Let's build something! 🚀
   },
   "concepts_seen": [],
   "concepts_mastered": [],
+  "skills_progress": {},
   "quiz_history": [],
   "sessions": {
-    "total": 0,
-    "first_session": null,
-    "last_session": null
+    "total": 1,
+    "first_session": "[YYYY-MM-DD]",
+    "last_session": "[YYYY-MM-DD]"
   },
-  "achievements": [],
+  "achievements": [
+    {
+      "id": "first-session",
+      "name": "First Steps",
+      "description": "Started your first CodeSensei session",
+      "earned_at": "[ISO timestamp]"
+    }
+  ],
   "preferences": {
     "difficulty": "auto",
-    "analogy_domain": null
-  }
+    "analogy_domain": null,
+    "show_hints": true
+  },
+  "session_concepts": []
 }
 ```
 

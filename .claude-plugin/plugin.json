@@ -1,7 +1,7 @@
 {
   "name": "code-sensei",
-  "version": "1.0.0",
-  "description": "Learn to code while you vibecode. Free, open-source AI mentor by Dojo Coding — contextual explanations, quizzes, and belt progression built into every Claude Code session.",
+  "version": "1.1.0",
+  "description": "In-context coding tutor for Claude Code. Learn from your real project with explanations, quizzes, diagnostics, and belt-based progression — locally and privately.",
   "author": {
     "name": "Dojo Coding",
     "url": "https://dojocoding.io"
@@ -25,6 +25,9 @@
     "tutorial",
     "gamification",
     "code-learning",
+    "coding-tutor",
+    "developer-education",
+    "privacy-first",
     "code-sensei",
     "dojo-coding"
   ]

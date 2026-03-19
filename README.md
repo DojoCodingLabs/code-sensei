@@ -1,234 +1,311 @@
-# 🥋 CodeSensei — Claude Code Plugin for Learning to Code
+# 🥋 CodeSensei — Learn to Code While You Build
 
 [![Claude Code Plugin](https://img.shields.io/badge/Claude_Code-Plugin-blue?logo=anthropic&logoColor=white)](https://github.com/DojoCodingLabs/code-sensei)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](https://opensource.org/licenses/MIT)
 [![Category: Education](https://img.shields.io/badge/Category-Education-orange)](https://github.com/topics/claude-code-plugin)
 [![Free & Open Source](https://img.shields.io/badge/Free-Open_Source-brightgreen)](https://github.com/DojoCodingLabs/code-sensei)
 
-### A free, open-source Claude Code plugin that teaches programming while you vibecode — by [Dojo Coding](https://dojocoding.io)
+### In-context coding tutor for Claude Code — explanations, quizzes, and belt-based progress from your real project
 
-**CodeSensei** is a **Claude Code plugin** that turns every coding session into a learning session. Like Duolingo, but for coding — and instead of fake exercises, you learn from **your own projects** in real-time.
+**CodeSensei** is a free, open-source Claude Code plugin by [Dojo Coding](https://dojocoding.io) that turns every coding session into a learning session.
 
-No prior coding experience needed. Seriously.
+It watches what you build locally, explains what just happened in plain language, quizzes you on concepts from your own project, and tracks your growth with a martial arts belt progression system.
 
 <p align="center">
-  <img src="codesenseicover.png" alt="CodeSensei — Learn to code while you vibecode" />
+  <img src="codesenseicover.png" alt="CodeSensei — Learn to code while you build" />
 </p>
 
 ---
 
-## The Problem
+## Why it exists
 
-10 million people are vibecoding — prompting AI to build apps without understanding a single line of code. They ship incredible things, but they learn **nothing**. The moment something breaks, they're stuck.
+Millions of people are building with AI before they fully understand the code.
 
-Traditional education says "learn first, then build." But vibecoders are already building. They're not going backwards.
+That is not a failure — it is a new starting point.
 
-## The Insight
+The problem is what happens next:
+- something breaks
+- a new feature needs a custom change
+- the AI explanation feels too abstract
+- the user realizes they shipped something they cannot yet reason about
 
-The most powerful classroom is the one you're already sitting in.
+CodeSensei closes that gap.
 
-Vibecoders don't lack curiosity — they lack **context**. When Claude creates a React component, they want to know what just happened. When it sets up a database, they want to know why.
-
-The questions are already there. Nobody's answering them. **Until now.**
-
-## The Solution
-
-CodeSensei is an AI mentor that lives inside Claude Code. As you build, it explains what's happening, why decisions were made, and quizzes you along the way — all adapted to your skill level through a martial arts belt progression system.
-
-You build your project. CodeSensei builds your understanding.
-
-- 🧠 **Contextual learning** — explanations from *your actual code*, not generic examples
-- 🥋 **Belt progression** — White Belt to Black Belt, earned through real understanding
-- 🧩 **Micro-quizzes** — comprehension checks that earn XP, not memorization drills
-- 🔥 **Streaks & XP** — daily streaks and experience points that persist across projects
-- 🎯 **Adaptive difficulty** — set your background (marketing, design, finance) and get analogies from *your field*
+Instead of forcing people to stop building and go study in a separate environment, it teaches inside the workflow they already use.
 
 ---
 
-## 🥋 Belt Progression System
+## What you get
 
-```
-⬜ White Belt    →     0 XP    "You wrote your first prompt"
-🟡 Yellow Belt   →   500 XP    "You understand files & folders"
-🟠 Orange Belt   → 1,500 XP    "You get frontend vs backend"
-🟢 Green Belt    → 3,500 XP    "You can read and modify code"
-🔵 Blue Belt     → 7,000 XP    "You understand APIs & databases"
-🟤 Brown Belt    → 12,000 XP   "You can architect a full app"
-⚫ Black Belt    → 20,000 XP   "You think like an engineer"
-```
-
-Every explanation, every quiz, every session earns XP. Every belt promotion is a milestone worth celebrating.
+- 🧠 **Contextual explanations** — learn from your actual project, not fake toy examples
+- 🧩 **Micro-quizzes** — quick checks that reinforce understanding instead of syntax memorization
+- 🥋 **Belt progression** — White Belt to Black Belt, earned through XP + mastery gates
+- 🔁 **Persistent local profile** — progress follows you across projects on the same machine
+- 🎯 **Adaptive teaching** — explanations adjust to your belt level and professional background
+- 🔒 **Local-first design** — no telemetry, no external calls, no code uploads from the plugin scripts
 
 ---
 
-## 📦 Installation
+## Quick start
+
+### Requirements
+
+- [Claude Code](https://code.claude.com) with plugin support
+- `jq` installed locally
+  - macOS: `brew install jq`
+  - Ubuntu/Debian: `sudo apt install jq`
+
+`jq` is required for profile tracking, imports, quizzes, and diagnostics.
+
+### Install from marketplace
 
 ```bash
-# In Claude Code:
 /plugin marketplace add DojoCodingLabs/code-sensei
 /plugin install code-sensei@code-sensei
 ```
 
-That's it. Start building — CodeSensei activates automatically.
+### First-run flow
 
-> **Requires:** [Claude Code](https://code.claude.com) with plugin support. Hook scripts use `jq` for profile tracking — install with `brew install jq` (macOS) or `apt install jq` (Linux).
+After install:
 
-### Updating
+1. Run `/code-sensei:progress` to initialize your local profile
+2. Optional: run `/code-sensei:level background marketing` (or design, finance, medicine, etc.)
+3. Build normally with Claude Code
+4. Use `/code-sensei:explain` after a code change you want to understand
+5. Run `/code-sensei:doctor` if you want to verify setup or inspect local storage paths
+
+### Update
 
 ```bash
-# Update the marketplace catalog first:
 claude plugin marketplace update DojoCodingLabs/code-sensei
-
-# Then update the plugin:
 claude plugin update code-sensei@code-sensei
 ```
 
-Restart your Claude Code session after updating — hooks are loaded at session start.
+Restart your Claude Code session after updating so hooks reload cleanly.
 
-### Local Development
+### Local development install
 
 ```bash
 git clone https://github.com/DojoCodingLabs/code-sensei.git
 cd code-sensei
 
-# In Claude Code:
 /plugin marketplace add .
 /plugin install code-sensei
 ```
 
 ---
 
-## 🎮 Commands
+## Commands
+
+CodeSensei currently ships with **10 commands**:
 
 | Command | What it does |
-|---------|-------------|
-| `/code-sensei:explain` | Explain what Claude just did, in terms you understand |
+|---------|--------------|
+| `/code-sensei:explain` | Explain what Claude just changed in terms you understand |
 | `/code-sensei:quiz` | Test your understanding with a contextual quiz |
-| `/code-sensei:why` | Understand *why* Claude made a specific decision |
-| `/code-sensei:progress` | View your full learning dashboard |
-| `/code-sensei:recap` | End-of-session summary of everything you learned |
-| `/code-sensei:level` | Adjust difficulty or set your background field |
-| `/code-sensei:belt` | View your current belt rank and progress |
+| `/code-sensei:why` | Explain why a specific decision or pattern was used |
+| `/code-sensei:progress` | Show your learning dashboard, streak, mastery, and next belt requirements |
+| `/code-sensei:recap` | Summarize what you learned in the session |
+| `/code-sensei:level` | Adjust difficulty or set your professional background |
+| `/code-sensei:belt` | Show current belt rank and progress |
+| `/code-sensei:export` | Export your local profile for backup or migration |
+| `/code-sensei:import` | Restore a profile from a previous export |
+| `/code-sensei:doctor` | Verify setup health and inspect exactly what CodeSensei stores locally |
 
 ---
 
-## 🧠 How It Works
+## How it works
 
-1. **You vibecode normally** — prompt Claude to build whatever you want
-2. **Hooks track what happens** — file changes, commands run, technologies used
-3. **You ask when curious** — `/code-sensei:explain`, `/code-sensei:quiz`, `/code-sensei:why` whenever you want to learn
-4. **CodeSensei adapts** — explanations match your belt level and background
-5. **You level up** — XP accumulates, belts are earned, skills unlock
-6. **Progress persists** — your profile lives at `~/.code-sensei/` and works across all projects
+1. **You build normally**
+   Prompt Claude to create files, edit code, install dependencies, and run commands.
 
-### Adaptive Teaching
+2. **Hooks watch local activity**
+   CodeSensei listens for file changes and shell commands, then queues lightweight teaching moments locally.
 
-CodeSensei's AI mentor adapts its entire communication style to your level:
+3. **You ask when curious**
+   Use `/code-sensei:explain`, `/code-sensei:why`, or `/code-sensei:quiz` whenever you want to understand something better.
 
-**⬜ White Belt hears:**
-> "Claude added a 'translator' to your server. When someone fills out your form, the data arrives as raw text. This translator converts it into something your code can read — like translating a letter from another language."
+4. **Teaching adapts to you**
+   White Belt gets analogy-first explanations. Advanced belts get more technical language, tradeoffs, and architecture discussion.
 
-**🔵 Blue Belt hears:**
-> "Express middleware was added to parse incoming JSON. This sits in the request pipeline before your route handlers, so `req.body` is already a JavaScript object by the time your code runs."
-
-Same concept. Different depth. Always from **your project**, not a generic example.
-
-### Background-Specific Analogies
-
-Set your field with `/code-sensei:level background marketing` and CodeSensei speaks your language:
-
-- **Marketing:** "An API is like a campaign brief — you send specific requirements, and the server delivers exactly what you asked for."
-- **Design:** "Components are like design system elements — reusable, consistent, and composable."
-- **Finance:** "A variable is like an account balance — it holds a value that changes over time."
-- **Medicine:** "Error handling is like triage — you check for the most critical problems first."
-
-### What Gets Tracked
-
-- ✅ File types and technologies Claude uses (for contextual teaching)
-- ✅ Your XP, belt level, quiz history, and streak
-- ❌ No personal data, no code content, no telemetry, no external calls
-
-Everything stays on your machine in `~/.code-sensei/`.
+5. **Progress persists locally**
+   Your profile lives in `~/.code-sensei/` and carries across projects on that machine.
 
 ---
 
-## 🔧 What's Included
+## Belt progression
 
+```text
+⬜ White Belt    →     0 XP    “You wrote your first prompt”
+🟡 Yellow Belt   →   500 XP    “You understand files & folders”
+🟠 Orange Belt   → 1,500 XP    “You get frontend vs backend”
+🟢 Green Belt    → 3,500 XP    “You can read and modify code”
+🔵 Blue Belt     → 7,000 XP    “You understand APIs & databases”
+🟤 Brown Belt    → 12,000 XP   “You can architect a full app”
+⚫ Black Belt    → 20,000 XP   “You think like an engineer”
 ```
+
+Promotion is not XP-only.
+
+Each new belt also requires:
+- concept mastery gates
+- quiz accuracy of at least 60%
+
+That keeps progress tied to understanding, not just activity.
+
+---
+
+## Adaptive teaching examples
+
+### White Belt / beginner
+> “Claude just added a translator to your server. Raw form data arrives as text, and this translator turns it into something your code can actually read.”
+
+### Blue Belt / advanced learner
+> “Claude added middleware to parse JSON before requests hit your route handlers, so `req.body` is already normalized when your business logic runs.”
+
+Same project. Same concept. Different depth.
+
+### Background-specific analogies
+Set a background with `/code-sensei:level background marketing` and CodeSensei will adapt examples to your field.
+
+Examples:
+- **Marketing** — “An API is like a campaign brief: you send structured requirements and receive a structured result.”
+- **Design** — “Components are like design system elements: reusable, composable, and consistent.”
+- **Finance** — “A variable is like an account balance: a named value that changes over time.”
+- **Medicine** — “Error handling is like triage: you check critical problems first.”
+
+---
+
+## Learning coverage
+
+CodeSensei currently includes:
+
+- **10 learning categories**
+- **45 concepts**
+- **124 quiz questions**
+
+Categories:
+- 🧱 Fundamentals
+- 🌐 Web Basics
+- ⚡ JavaScript
+- 💻 Terminal & Tools
+- 🎨 Frontend
+- ⚙️ Backend
+- 🗄️ Databases
+- 🚀 Deployment
+- 🏗️ Architecture
+- 🐞 Debugging
+
+---
+
+## What is stored locally
+
+Everything lives under `~/.code-sensei/`.
+
+Primary files:
+- `profile.json` — belt, XP, streaks, quiz stats, preferences, mastered concepts
+- `profile.json.backup` — last backup created during import
+- `session-commands.jsonl` — recent command log, truncated and redacted
+- `session-changes.jsonl` — recent file-change log
+- `sessions.log` — compact session start/stop history
+- `pending-lessons/` — queued teaching moments for the current session
+- `lessons-archive/` — archived teaching moments
+- `error.log` — local script errors only
+
+Retention:
+- `session-commands.jsonl` keeps the most recent 1000 lines
+- `session-changes.jsonl` keeps the most recent 1000 lines
+- `sessions.log` keeps the most recent 500 lines
+- `lessons-archive/` keeps the last 30 daily archive files
+- `pending-lessons/` is cleared at session end
+
+Sensitive data handling:
+- command logs are truncated
+- common token/secret/password patterns are redacted before logging
+- the plugin scripts do not upload your code or local profile anywhere
+
+For a more detailed breakdown, see [PRIVACY.md](PRIVACY.md).
+
+---
+
+## Privacy and trust
+
+CodeSensei is designed to be local-first.
+
+The shell scripts in this repo:
+- do not send telemetry
+- do not upload code
+- do not call external APIs for tracking
+- store learning data locally on your machine
+
+Important precision:
+- CodeSensei does record local metadata about your coding sessions so it can teach effectively
+- That includes file paths, concept history, quiz history, and redacted command history
+- If you want to inspect exactly what exists on disk, run `/code-sensei:doctor`
+
+If you ever want a clean reset, delete `~/.code-sensei/`.
+
+---
+
+## Repository structure
+
+```text
 code-sensei/
 ├── .claude-plugin/
-│   ├── plugin.json          # Plugin metadata
-│   └── marketplace.json     # Marketplace catalog
-├── commands/                 # 7 slash commands
-│   ├── explain.md            #   /code-sensei:explain
-│   ├── quiz.md               #   /code-sensei:quiz
-│   ├── why.md                #   /code-sensei:why
-│   ├── progress.md           #   /code-sensei:progress
-│   ├── recap.md              #   /code-sensei:recap
-│   ├── level.md              #   /code-sensei:level
-│   └── belt.md               #   /code-sensei:belt
+│   ├── plugin.json
+│   └── marketplace.json
+├── commands/                 # 10 slash commands
 ├── agents/
-│   └── sensei.md             # AI mentor subagent (Haiku)
-├── skills/                   # 10 auto-invoked teaching modules
+│   └── sensei.md             # teaching agent prompt
 ├── hooks/
-│   └── hooks.json            # Session & code change tracking
-├── scripts/                  # Hook scripts (bash + jq)
-└── data/                     # Concept tree & quiz bank
+│   └── hooks.json            # SessionStart, SessionEnd, PostToolUse hooks
+├── scripts/                  # local runtime behavior (bash + jq)
+├── skills/                   # teaching modules
+├── data/
+│   ├── concept-tree.json     # 45 concepts across 10 categories
+│   └── quiz-bank.json        # 124 quiz items
+└── tests/
 ```
 
 ---
 
-## 📚 Learning Modules
+## Contributing
 
-CodeSensei covers **42 concepts** across **9 categories**:
+Contributions are welcome.
 
-- **🧱 Fundamentals** — Variables, functions, loops, conditionals, Python
-- **🌐 Web Basics** — HTML, CSS, how browsers work
-- **⚡ JavaScript** — Core JS, async/await, imports, JSON, TypeScript
-- **💻 Terminal & Tools** — Command line, npm, git, env variables
-- **🎨 Frontend** — React, components, props, state, routing
-- **⚙️ Backend** — Servers, routes, middleware, REST APIs, auth, testing
-- **🗄️ Databases** — SQL, schemas, ORMs, relationships
-- **🚀 Deployment** — Hosting, Docker, CI/CD
-- **🏗️ Architecture** — Design patterns, scalability, client-server
+High-value areas:
+- better analogies
+- more quiz questions
+- new learning modules
+- better concept detection
+- translations
+- bug fixes and tests
 
----
-
-## 🤝 Contributing
-
-CodeSensei is open source and built to be contributed to:
-
-- **📝 Better analogies** — A nurse writes a medical analogy for error handling. Now every nurse learning to code gets it.
-- **🧩 More quizzes** — Add questions to `data/quiz-bank.json`
-- **🌍 Translations** — Help us teach in Spanish, Portuguese, and beyond
-- **💡 New skill modules** — Want to add Python, Rust, or mobile dev? Go for it.
-- **🐛 Bug fixes** — Found an issue? Open a PR
-
-See [CONTRIBUTING.md](CONTRIBUTING.md) for detailed guidelines.
+See [CONTRIBUTING.md](CONTRIBUTING.md).
 
 ---
 
-## 🏢 Built by Dojo Coding
+## Built by Dojo Coding
 
-[Dojo Coding](https://dojocoding.io) is a LATAM-first tech education ecosystem with 1,800+ developers across 8 countries. We believe anyone can learn to code — especially when they're already building.
+[Dojo Coding](https://dojocoding.io) is a LATAM-first tech education ecosystem helping more people become builders.
 
-CodeSensei is free forever. Open source. No paywall. The full product.
+CodeSensei is free forever, open source, and designed to help users go from “I shipped something with AI” to “I understand what I’m building.”
 
-### Go deeper with Dojo Coding
-
-- **[VibeCoding Bootcamp](https://dojocoding.io/bootcamp)** — Structured curriculum with live mentors
-- **[DojoOS](https://dojocoding.io/dojoos)** — Full developer environment and community
-- **[Discord](https://dojocoding.io/discord)** — Join the community
+Learn more:
+- [Dojo Coding](https://dojocoding.io)
+- [VibeCoding Bootcamp](https://dojocoding.io/bootcamp)
+- [DojoOS](https://dojocoding.io/dojoos)
+- [Discord](https://dojocoding.io/discord)
 
 ---
 
-## 📄 License
+## License
 
-MIT License — free to use, modify, and distribute.
+MIT License.
 
 ---
 
 <p align="center">
-  <strong>🥋 From vibecoder to engineer — one session at a time.</strong><br>
+  <strong>From vibecoder to engineer — one session at a time.</strong><br>
   <em>Free. Open source. By <a href="https://dojocoding.io">Dojo Coding</a>.</em>
 </p>

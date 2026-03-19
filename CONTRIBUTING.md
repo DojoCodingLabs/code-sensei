@@ -55,10 +55,20 @@ claude
 # Install
 /plugin install code-sensei
 
-# Test your changes
+# Verify local setup
+/code-sensei:doctor
+
+# Test key commands
+/code-sensei:progress
 /code-sensei:explain
 /code-sensei:quiz
-/code-sensei:progress
+/code-sensei:export
+```
+
+### Validate Before You Open a PR
+```bash
+shellcheck -S error scripts/*.sh scripts/lib/*.sh
+bash tests/test-hooks.sh
 ```
 
 ### What We Need Help With
@@ -70,9 +80,10 @@ claude
 
 ### PR Guidelines
 1. Keep it focused — one feature or fix per PR
-2. Test with Claude Code locally before submitting
-3. Update quiz-bank.json if adding new concepts
-4. Follow the existing tone: encouraging, simple, analogy-first
+2. Run the validation commands above before submitting
+3. Test with Claude Code locally before submitting
+4. Update `quiz-bank.json` if adding new concepts
+5. Follow the existing tone: encouraging, simple, analogy-first
 
 ## Code of Conduct
 
