@@ -8,11 +8,14 @@ SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 
 # shellcheck source=lib/profile-io.sh
 source "${SCRIPT_DIR}/lib/profile-io.sh"
+# shellcheck source=lib/log-helpers.sh
+source "${SCRIPT_DIR}/lib/log-helpers.sh"
 
 CHANGES_LOG="${PROFILE_DIR}/session-changes.jsonl"
 SESSION_STATE="${PROFILE_DIR}/session-state.json"
 RATE_LIMIT_INTERVAL=30
 SESSION_CAP=12
+CHANGES_LOG_MAX_LINES=1000
 
 LIB_DIR="${SCRIPT_DIR}/lib"
 if [ -f "${LIB_DIR}/error-handling.sh" ]; then
@@ -78,40 +81,51 @@ case "$EXTENSION" in
   *) TECH="other" ;;
 esac
 
+TRACKED_CONCEPT="$TECH"
+case "$TECH" in
+  javascript) TRACKED_CONCEPT="js-basics" ;;
+  react) TRACKED_CONCEPT="react-components" ;;
+  sql) TRACKED_CONCEPT="sql-basics" ;;
+  shell) TRACKED_CONCEPT="terminal-navigation" ;;
+  other) TRACKED_CONCEPT="" ;;
+esac
+
 SAFE_FILE_PATH=$(printf '%s' "$FILE_PATH" | sed 's/\\/\\\\/g; s/"/\\"/g')
 SAFE_TOOL_NAME=$(printf '%s' "$TOOL_NAME" | sed 's/\\/\\\\/g; s/"/\\"/g')
-if ! printf '{"timestamp":"%s","tool":"%s","file":"%s","extension":"%s","tech":"%s"}\n' \
-  "$TIMESTAMP" "$SAFE_TOOL_NAME" "$SAFE_FILE_PATH" "$EXTENSION" "$TECH" >> "$CHANGES_LOG" 2>&1
+SAFE_TRACKED_CONCEPT=$(printf '%s' "$TRACKED_CONCEPT" | sed 's/\\/\\\\/g; s/"/\\"/g')
+if ! printf '{"timestamp":"%s","tool":"%s","file":"%s","extension":"%s","tech":"%s","concept":"%s"}\n' \
+  "$TIMESTAMP" "$SAFE_TOOL_NAME" "$SAFE_FILE_PATH" "$EXTENSION" "$TECH" "$SAFE_TRACKED_CONCEPT" >> "$CHANGES_LOG" 2>&1
 then
   log_error "$SCRIPT_NAME" "Failed to write to changes log: $CHANGES_LOG"
 fi
+trim_log_file "$CHANGES_LOG" "$CHANGES_LOG_MAX_LINES"
 
 IS_FIRST_EVER="false"
-if [ -f "$PROFILE_FILE" ] && [ "$TECH" != "other" ]; then
-  ALREADY_IN_SESSION=$(jq --arg tech "$TECH" '.session_concepts | index($tech)' "$PROFILE_FILE" 2>&1)
+if [ -f "$PROFILE_FILE" ] && [ -n "$TRACKED_CONCEPT" ]; then
+  ALREADY_IN_SESSION=$(jq --arg concept "$TRACKED_CONCEPT" '.session_concepts | index($concept)' "$PROFILE_FILE" 2>&1)
   if [ $? -ne 0 ]; then
-    log_error "$SCRIPT_NAME" "jq failed checking session_concepts for $TECH: $ALREADY_IN_SESSION"
+    log_error "$SCRIPT_NAME" "jq failed checking session_concepts for $TRACKED_CONCEPT: $ALREADY_IN_SESSION"
     ALREADY_IN_SESSION="0"
   fi
 
-  ALREADY_IN_LIFETIME=$(jq --arg tech "$TECH" '.concepts_seen | index($tech)' "$PROFILE_FILE" 2>&1)
+  ALREADY_IN_LIFETIME=$(jq --arg concept "$TRACKED_CONCEPT" '.concepts_seen | index($concept)' "$PROFILE_FILE" 2>&1)
   if [ $? -ne 0 ]; then
-    log_error "$SCRIPT_NAME" "jq failed checking concepts_seen for $TECH: $ALREADY_IN_LIFETIME"
+    log_error "$SCRIPT_NAME" "jq failed checking concepts_seen for $TRACKED_CONCEPT: $ALREADY_IN_LIFETIME"
     ALREADY_IN_LIFETIME="0"
   fi
 
   if [ "$ALREADY_IN_LIFETIME" = "null" ]; then
     IS_FIRST_EVER="true"
-    if ! update_profile --arg tech "$TECH" '
-      .session_concepts += (if (.session_concepts | index($tech)) == null then [$tech] else [] end) |
-      .concepts_seen += (if (.concepts_seen | index($tech)) == null then [$tech] else [] end)
+    if ! update_profile --arg concept "$TRACKED_CONCEPT" '
+      .session_concepts += (if (.session_concepts | index($concept)) == null then [$concept] else [] end) |
+      .concepts_seen += (if (.concepts_seen | index($concept)) == null then [$concept] else [] end)
     '; then
-      log_error "$SCRIPT_NAME" "Failed updating profile for first-time technology: $TECH"
+      log_error "$SCRIPT_NAME" "Failed updating profile for first-time concept: $TRACKED_CONCEPT"
       IS_FIRST_EVER="false"
     fi
   elif [ "$ALREADY_IN_SESSION" = "null" ]; then
-    if ! update_profile --arg tech "$TECH" '.session_concepts += [$tech]'; then
-      log_error "$SCRIPT_NAME" "Failed updating session_concepts for technology: $TECH"
+    if ! update_profile --arg concept "$TRACKED_CONCEPT" '.session_concepts += [$concept]'; then
+      log_error "$SCRIPT_NAME" "Failed updating session_concepts for concept: $TRACKED_CONCEPT"
     fi
   fi
 fi
@@ -182,8 +196,9 @@ LESSON_ID="${TIMESTAMP}-$(printf '%05d' $$)"
 LESSON_FILE="${PENDING_DIR}/${LESSON_ID}.json"
 SAFE_FILE_PATH_LESSON=$(printf '%s' "$FILE_PATH" | sed 's/\\/\\\\/g; s/"/\\"/g')
 SAFE_TOOL_NAME_LESSON=$(printf '%s' "$TOOL_NAME" | sed 's/\\/\\\\/g; s/"/\\"/g')
-if ! printf '{"timestamp":"%s","type":"%s","tech":"%s","file":"%s","tool":"%s","belt":"%s","firstEncounter":%s}\n' \
-  "$TIMESTAMP" "$LESSON_TYPE" "$TECH" "$SAFE_FILE_PATH_LESSON" "$SAFE_TOOL_NAME_LESSON" "$BELT" "$IS_FIRST_EVER" > "$LESSON_FILE"
+SAFE_TRACKED_CONCEPT_LESSON=$(printf '%s' "$TRACKED_CONCEPT" | sed 's/\\/\\\\/g; s/"/\\"/g')
+if ! printf '{"timestamp":"%s","type":"%s","tech":"%s","concept":"%s","file":"%s","tool":"%s","belt":"%s","firstEncounter":%s}\n' \
+  "$TIMESTAMP" "$LESSON_TYPE" "$TECH" "$SAFE_TRACKED_CONCEPT_LESSON" "$SAFE_FILE_PATH_LESSON" "$SAFE_TOOL_NAME_LESSON" "$BELT" "$IS_FIRST_EVER" > "$LESSON_FILE"
 then
   log_error "$SCRIPT_NAME" "Failed to write pending lesson: $LESSON_FILE"
 fi

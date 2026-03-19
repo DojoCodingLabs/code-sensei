@@ -7,6 +7,8 @@ SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 
 # shellcheck source=lib/profile-io.sh
 source "${SCRIPT_DIR}/lib/profile-io.sh"
+# shellcheck source=lib/log-helpers.sh
+source "${SCRIPT_DIR}/lib/log-helpers.sh"
 
 LIB_DIR="${SCRIPT_DIR}/lib"
 if [ -f "${LIB_DIR}/error-handling.sh" ]; then
@@ -19,6 +21,7 @@ else
 fi
 
 SESSION_LOG="${PROFILE_DIR}/sessions.log"
+SESSION_LOG_MAX_LINES=500
 SESSION_STATE="${PROFILE_DIR}/session-state.json"
 TODAY=$(date -u +%Y-%m-%d)
 
@@ -53,6 +56,7 @@ if ! printf '%s %s session_stop concepts=%s xp=%s belt=%s\n' \
 then
   log_error "$SCRIPT_NAME" "Failed to write to session log: $SESSION_LOG"
 fi
+trim_log_file "$SESSION_LOG" "$SESSION_LOG_MAX_LINES"
 
 if ! update_profile '.session_concepts = []'; then
   log_error "$SCRIPT_NAME" "Failed clearing session_concepts during session stop"

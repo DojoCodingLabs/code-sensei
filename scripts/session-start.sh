@@ -9,6 +9,8 @@ SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 source "${SCRIPT_DIR}/lib/profile-io.sh"
 # shellcheck source=lib/date-compat.sh
 source "${SCRIPT_DIR}/lib/date-compat.sh"
+# shellcheck source=lib/log-helpers.sh
+source "${SCRIPT_DIR}/lib/log-helpers.sh"
 
 LIB_DIR="${SCRIPT_DIR}/lib"
 if [ -f "${LIB_DIR}/error-handling.sh" ]; then
@@ -21,6 +23,7 @@ else
 fi
 
 SESSION_LOG="${PROFILE_DIR}/sessions.log"
+SESSION_LOG_MAX_LINES=500
 TODAY=$(date_today)
 
 ensure_profile_dir
@@ -155,6 +158,7 @@ fi
 if ! printf '%s %s session_start\n' "$TODAY" "$(date -u +%H:%M:%S)" >> "$SESSION_LOG" 2>&1; then
   log_error "$SCRIPT_NAME" "Failed to write to session log: $SESSION_LOG"
 fi
+trim_log_file "$SESSION_LOG" "$SESSION_LOG_MAX_LINES"
 
 if [ "$NEW_STREAK" -ge 7 ] && [ "$NEW_STREAK" != "$CURRENT_STREAK" ]; then
   echo "$NEW_STREAK-day streak! Consistency is the Dojo Way."

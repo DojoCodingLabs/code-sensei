@@ -8,11 +8,14 @@ SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 
 # shellcheck source=lib/profile-io.sh
 source "${SCRIPT_DIR}/lib/profile-io.sh"
+# shellcheck source=lib/log-helpers.sh
+source "${SCRIPT_DIR}/lib/log-helpers.sh"
 
 COMMANDS_LOG="${PROFILE_DIR}/session-commands.jsonl"
 SESSION_STATE="${PROFILE_DIR}/session-state.json"
 RATE_LIMIT_INTERVAL=30
 SESSION_CAP=12
+COMMANDS_LOG_MAX_LINES=1000
 TRIVIAL_COMMANDS="cd ls pwd clear echo cat which man help exit history alias type file wc whoami hostname uname true false"
 
 LIB_DIR="${SCRIPT_DIR}/lib"
@@ -100,13 +103,16 @@ for trivial in $TRIVIAL_COMMANDS; do
   fi
 done
 
+SANITIZED_COMMAND=$(redact_sensitive_command "$COMMAND")
+
 if [ "$IS_TRIVIAL" = "true" ]; then
-  SAFE_LOG_CMD=$(printf '%s' "$COMMAND" | head -c 200 | sed 's/\\/\\\\/g; s/"/\\"/g')
+  SAFE_LOG_CMD=$(printf '%s' "$SANITIZED_COMMAND" | head -c 200 | sed 's/\\/\\\\/g; s/"/\\"/g')
   if ! printf '{"timestamp":"%s","command":"%s","concept":"","skipped":"trivial"}\n' \
     "$TIMESTAMP" "$SAFE_LOG_CMD" >> "$COMMANDS_LOG" 2>&1
   then
     log_error "$SCRIPT_NAME" "Failed to write trivial command log: $COMMANDS_LOG"
   fi
+  trim_log_file "$COMMANDS_LOG" "$COMMANDS_LOG_MAX_LINES"
   printf '{}\n'
   exit 0
 fi
@@ -115,25 +121,24 @@ CONCEPT=""
 case "$COMMAND" in
   *"npm install"*|*"npm i "*|*"yarn add"*|*"pnpm add"*)
     CONCEPT="package-management"
-    PACKAGE=$(printf '%s' "$COMMAND" | sed -E 's/.*(npm install|npm i|yarn add|pnpm add)[[:space:]]+([^[:space:]]+).*/\2/' | head -1)
     ;;
   *"pip install"*|*"pip3 install"*) CONCEPT="package-management" ;;
   *"git "*) CONCEPT="git" ;;
   *"docker "*) CONCEPT="docker" ;;
-  *"curl "*|*"wget "*) CONCEPT="http-requests" ;;
-  *"mkdir "*|*"touch "*|*"cp "*|*"mv "*|*"rm "*) CONCEPT="file-system" ;;
-  *"node "*|*"npx "*) CONCEPT="nodejs-runtime" ;;
-  *"python "*|*"python3 "*) CONCEPT="python-runtime" ;;
-  *"psql "*|*"mysql "*|*"sqlite3 "*) CONCEPT="database-cli" ;;
+  *"curl "*|*"wget "*) CONCEPT="rest-apis" ;;
+  *"mkdir "*|*"touch "*|*"cp "*|*"mv "*|*"rm "*) CONCEPT="terminal-navigation" ;;
+  *"node "*|*"npx "*) CONCEPT="js-basics" ;;
+  *"python "*|*"python3 "*) CONCEPT="python" ;;
+  *"psql "*|*"mysql "*|*"sqlite3 "*) CONCEPT="sql-basics" ;;
   *"cd "*|*"ls "*|*"pwd"*) CONCEPT="terminal-navigation" ;;
-  *"chmod "*|*"chown "*) CONCEPT="permissions" ;;
-  *"ssh "*|*"scp "*) CONCEPT="remote-access" ;;
+  *"chmod "*|*"chown "*) CONCEPT="terminal-navigation" ;;
+  *"ssh "*|*"scp "*) CONCEPT="hosting" ;;
   *"env "*|*"export "*) CONCEPT="environment-variables" ;;
   *"test "*|*"jest "*|*"vitest "*|*"pytest "*) CONCEPT="testing" ;;
   *) CONCEPT="" ;;
 esac
 
-CMD_TRUNCATED=$(printf '%s' "$COMMAND" | head -c 200)
+CMD_TRUNCATED=$(printf '%s' "$SANITIZED_COMMAND" | head -c 200)
 SAFE_LOG_CMD=$(printf '%s' "$CMD_TRUNCATED" | sed 's/\\/\\\\/g; s/"/\\"/g')
 SAFE_CONCEPT=$(printf '%s' "$CONCEPT" | sed 's/\\/\\\\/g; s/"/\\"/g')
 if ! printf '{"timestamp":"%s","command":"%s","concept":"%s"}\n' \
@@ -141,8 +146,9 @@ if ! printf '{"timestamp":"%s","command":"%s","concept":"%s"}\n' \
 then
   log_error "$SCRIPT_NAME" "Failed to write to commands log: $COMMANDS_LOG"
 fi
+trim_log_file "$COMMANDS_LOG" "$COMMANDS_LOG_MAX_LINES"
 
-SAFE_CMD=$(printf '%s' "$COMMAND" | head -c 80 | tr '"' "'" | tr '\\' '/')
+SAFE_CMD=$(printf '%s' "$SANITIZED_COMMAND" | head -c 80 | tr '"' "'" | tr '\\' '/')
 
 IS_TEST_RUNNER="false"
 case "$COMMAND" in
