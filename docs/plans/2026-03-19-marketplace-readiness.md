@@ -77,3 +77,23 @@
 - [ ] Hook regression tests pass locally
 - [ ] CI runs critical hook tests
 - [ ] Repo is clean and pushed to `main`
+
+---
+
+## Follow-up production hardening (reviewer notes)
+
+These items were identified in the final marketplace review and should be addressed as part of ongoing production readiness:
+
+1. **Supported platform clarity**
+   - Make README/listing docs explicit that CodeSensei supports macOS and Linux.
+   - Clarify that Windows users should use WSL unless native Windows support is added later.
+
+2. **Command-surface consistency**
+   - Use one consistent “inside Claude Code” command style in README examples for install/update flows.
+
+3. **Expanded behavioral test coverage**
+   - Add regression coverage for `scripts/session-start.sh`.
+   - Add regression coverage for `scripts/export-profile.sh`.
+
+4. **macOS CI smoke coverage**
+   - Add a lightweight `macos-latest` GitHub Actions job that installs `jq`, runs key shell smoke/behavior tests, and validates the Unix-shell support claim.

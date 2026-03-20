@@ -4,6 +4,10 @@ CodeSensei is designed to be local-first.
 
 This document explains what the plugin stores on disk, what it does not do, and how retention works.
 
+Platform note:
+- CodeSensei currently targets macOS and Linux shells.
+- On Windows, use WSL for the most reliable behavior.
+
 ## What CodeSensei stores locally
 
 By default, CodeSensei writes data under:

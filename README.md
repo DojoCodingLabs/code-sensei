@@ -57,7 +57,17 @@ Instead of forcing people to stop building and go study in a separate environmen
 
 `jq` is required for profile tracking, imports, quizzes, and diagnostics.
 
+### Supported platforms
+
+- ✅ macOS
+- ✅ Linux
+- ⚠️ Windows via WSL recommended
+
+CodeSensei is a Unix-shell plugin today. Its runtime depends on `bash`, `jq`, and standard Unix tools, so WSL is the safest path on Windows.
+
 ### Install from marketplace
+
+Inside Claude Code:
 
 ```bash
 /plugin marketplace add DojoCodingLabs/code-sensei
@@ -76,9 +86,11 @@ After install:
 
 ### Update
 
+Inside Claude Code:
+
 ```bash
-claude plugin marketplace update DojoCodingLabs/code-sensei
-claude plugin update code-sensei@code-sensei
+/plugin marketplace update DojoCodingLabs/code-sensei
+/plugin update code-sensei@code-sensei
 ```
 
 Restart your Claude Code session after updating so hooks reload cleanly.

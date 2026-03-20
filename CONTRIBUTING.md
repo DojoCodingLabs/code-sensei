@@ -44,6 +44,11 @@ git clone https://github.com/DojoCodingLabs/code-sensei.git
 cd code-sensei
 ```
 
+Supported development environments:
+- macOS
+- Linux
+- Windows via WSL
+
 ### Testing Locally
 ```bash
 # Open Claude Code
