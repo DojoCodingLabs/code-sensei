@@ -118,6 +118,30 @@ jobs:
       - name: Run profile tools regression tests
         run: bash tests/test-profile-tools.sh
 
+  macos-smoke:
+    name: macOS Smoke Tests
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install jq and shellcheck
+        env:
+          HOMEBREW_NO_AUTO_UPDATE: "1"
+        run: brew install jq shellcheck
+
+      - name: Run shellcheck on scripts
+        run: |
+          shellcheck -S error scripts/*.sh
+          if compgen -G "scripts/lib/*.sh" > /dev/null; then
+            shellcheck -S error scripts/lib/*.sh
+          fi
+
+      - name: Run hook regression tests
+        run: bash tests/test-hooks.sh
+
+      - name: Run profile tools regression tests
+        run: bash tests/test-profile-tools.sh
+
   concept-coverage:
     name: Concept Coverage Check
     runs-on: ubuntu-latest
