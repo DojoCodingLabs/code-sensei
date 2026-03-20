@@ -1,6 +1,6 @@
 #!/bin/bash
 # CodeSensei — Profile Tools Regression Tests
-# Covers doctor/import scripts and secret redaction in command logging.
+# Covers session start, doctor/import/export scripts, and secret redaction in command logging.
 
 set -euo pipefail
 
@@ -68,7 +68,37 @@ echo "━━━ CodeSensei Profile Tools Tests ━━━"
 echo ""
 
 # ============================================================
-# TEST GROUP 1: doctor.sh
+# TEST GROUP 1: session-start.sh
+# ============================================================
+echo "▸ session-start.sh"
+
+rm -rf "$TEST_HOME/.code-sensei"
+START_OUTPUT=$(bash "$SCRIPT_DIR/scripts/session-start.sh")
+if [ -f "$TEST_HOME/.code-sensei/profile.json" ]; then
+  pass "session-start creates a new profile"
+else
+  fail "session-start creates a new profile" "profile not found"
+fi
+
+START_BELT=$(jq -r '.belt' "$TEST_HOME/.code-sensei/profile.json")
+START_SESSIONS=$(jq -r '.sessions.total' "$TEST_HOME/.code-sensei/profile.json")
+START_STREAK=$(jq -r '.streak.current' "$TEST_HOME/.code-sensei/profile.json")
+if [ "$START_BELT" = "white" ] && [ "$START_SESSIONS" -eq 1 ] && [ "$START_STREAK" -eq 1 ]; then
+  pass "session-start initializes default learning state"
+else
+  fail "session-start initializes default learning state" "belt=$START_BELT sessions=$START_SESSIONS streak=$START_STREAK"
+fi
+
+if echo "$START_OUTPUT" | grep -q "Welcome to CodeSensei"; then
+  pass "session-start emits welcome guidance for new users"
+else
+  fail "session-start emits welcome guidance for new users" "$START_OUTPUT"
+fi
+
+echo ""
+
+# ============================================================
+# TEST GROUP 2: doctor.sh
 # ============================================================
 echo "▸ doctor.sh"
 
@@ -93,7 +123,33 @@ fi
 echo ""
 
 # ============================================================
-# TEST GROUP 2: import-profile.sh
+# TEST GROUP 3: export-profile.sh
+# ============================================================
+echo "▸ export-profile.sh"
+
+setup_profile
+export CLAUDE_PLUGIN_ROOT="$SCRIPT_DIR"
+EXPORT_RESULT=$(bash "$SCRIPT_DIR/scripts/export-profile.sh")
+if [ -f "$EXPORT_RESULT" ]; then
+  pass "export-profile creates an export file"
+else
+  fail "export-profile creates an export file" "file not found: $EXPORT_RESULT"
+fi
+
+EXPORT_SCHEMA=$(jq -r '.schema_version' "$EXPORT_RESULT")
+EXPORT_BELT=$(jq -r '.profile.belt' "$EXPORT_RESULT")
+EXPORT_PLUGIN_VERSION=$(jq -r '.plugin_version' "$EXPORT_RESULT")
+if [ "$EXPORT_SCHEMA" = "1.0" ] && [ "$EXPORT_BELT" = "yellow" ] && [ "$EXPORT_PLUGIN_VERSION" != "unknown" ]; then
+  pass "export-profile wraps the profile with metadata"
+else
+  fail "export-profile wraps the profile with metadata" "schema=$EXPORT_SCHEMA belt=$EXPORT_BELT plugin_version=$EXPORT_PLUGIN_VERSION"
+fi
+rm -f "$EXPORT_RESULT"
+
+echo ""
+
+# ============================================================
+# TEST GROUP 4: import-profile.sh
 # ============================================================
 echo "▸ import-profile.sh"
 
@@ -123,7 +179,7 @@ fi
 echo ""
 
 # ============================================================
-# TEST GROUP 3: track-command.sh redaction
+# TEST GROUP 5: track-command.sh redaction
 # ============================================================
 echo "▸ track-command.sh redaction"
 
