@@ -1,7 +1,7 @@
 {
   "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
   "name": "code-sensei",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "In-context coding tutor for Claude Code. Learn from your real project with explanations, quizzes, diagnostics, and belt-based progression — locally and privately.",
   "owner": {
     "name": "Dojo Coding",
@@ -11,7 +11,7 @@
     {
       "name": "code-sensei",
       "description": "In-context coding tutor for Claude Code. Explains what AI just built, quizzes you on your own project, and tracks progress locally with a martial arts belt progression system.",
-      "version": "1.1.0",
+      "version": "1.1.1",
       "author": {
         "name": "Dojo Coding",
         "email": "team@dojocoding.io"

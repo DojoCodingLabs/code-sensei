@@ -2,6 +2,10 @@
 
 All notable changes to CodeSensei will be documented in this file.
 
+## 1.1.1
+
+- Fixed the `sensei` subagent failing to launch (0 tool uses) because its configured `haiku` model is unavailable; switched to `sonnet`
+
 ## 1.1.0
 
 - Added `/code-sensei:doctor` for setup verification and local storage inspection
