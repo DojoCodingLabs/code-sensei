@@ -1,0 +1,12 @@
+name = "CodeSensei"
+tagline = "Learn to code while you [build]"
+chips = ["Explain / Quiz / Belts"]
+meta = "Open source · Claude Code"
+tile = "/"
+
+[card]
+kind = "terminal"
+label = "Claude Code"
+status = "MIT"
+lines = ["/plugin install code-sensei@code-sensei", "/code-sensei:explain", "/code-sensei:quiz"]
+dim = "White Belt → Black Belt"

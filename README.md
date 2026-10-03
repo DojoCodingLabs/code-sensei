@@ -1,19 +1,27 @@
-# 🥋 CodeSensei — Learn to Code While You Build
+<p align="center">
+  <a href="https://dojocoding.io">
+    <picture>
+      <source media="(prefers-color-scheme: dark)" srcset="docs/assets/banner-dark.svg">
+      <source media="(prefers-color-scheme: light)" srcset="docs/assets/banner-light.svg">
+      <img alt="CodeSensei by Dojo Coding: Learn to code while you build" src="docs/assets/banner-light.svg" width="100%">
+    </picture>
+  </a>
+</p>
 
-[![Claude Code Plugin](https://img.shields.io/badge/Claude_Code-Plugin-blue?logo=anthropic&logoColor=white)](https://github.com/DojoCodingLabs/code-sensei)
-[![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](https://opensource.org/licenses/MIT)
-[![Category: Education](https://img.shields.io/badge/Category-Education-orange)](https://github.com/topics/claude-code-plugin)
-[![Free & Open Source](https://img.shields.io/badge/Free-Open_Source-brightgreen)](https://github.com/DojoCodingLabs/code-sensei)
+# CodeSensei
 
-### In-context coding tutor for Claude Code — explanations, quizzes, and belt-based progress from your real project
+**An in-context coding tutor for Claude Code, for builders who ship with AI and want to understand what they built.**
 
 **CodeSensei** is a free, open-source Claude Code plugin by [Dojo Coding](https://dojocoding.io) that turns every coding session into a learning session.
 
 It watches what you build locally, explains what just happened in plain language, quizzes you on concepts from your own project, and tracks your growth with a martial arts belt progression system.
 
-<p align="center">
-  <img src="codesenseicover.png" alt="CodeSensei — Learn to code while you build" />
-</p>
+[![Claude Code Plugin](https://img.shields.io/badge/Claude%20Code-Plugin-201E3D?labelColor=201E3D)](https://github.com/DojoCodingLabs/code-sensei)
+[![License: MIT](https://img.shields.io/badge/License-MIT-FF7151?labelColor=201E3D)](https://opensource.org/licenses/MIT)
+[![Category: Education](https://img.shields.io/badge/Category-Education-FF7151?labelColor=201E3D)](https://github.com/topics/claude-code-plugin)
+[![Free & Open Source](https://img.shields.io/badge/Free-Open%20Source-FF7151?labelColor=201E3D)](https://github.com/DojoCodingLabs/code-sensei)
+
+[Get started](#quick-start) · [Commands](#commands) · [Privacy](#privacy-and-trust) · [Contribute](CONTRIBUTING.md) · [Report an issue](https://github.com/DojoCodingLabs/code-sensei/issues/new)
 
 ---
 
@@ -313,11 +321,8 @@ Learn more:
 
 ## License
 
-MIT License.
-
----
+MIT License. Built by [Dojo Coding](https://dojocoding.io).
 
 <p align="center">
-  <strong>From vibecoder to engineer — one session at a time.</strong><br>
-  <em>Free. Open source. By <a href="https://dojocoding.io">Dojo Coding</a>.</em>
+  <a href="https://dojocoding.io"><img src="docs/assets/dojocoding-mark.png" alt="Dojo Coding" width="48"></a>
 </p>
